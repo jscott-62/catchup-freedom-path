@@ -3205,7 +3205,7 @@
     if (!canvas) return;
     const { ctx, w, h } = setupCanvas(canvas);
 
-    const margin = { top: 30, right: 30, bottom: 50, left: 70 };
+    const margin = { top: 30, right: 30, bottom: 65, left: 70 };
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
@@ -3214,13 +3214,16 @@
     const selected = getSelectedAssets();
     const assets = selected.filter(k => _assetMetrics[k] && _data.assets[k]);
 
-    // Calculate drawdown for selected timeframe
-    const values = assets.map(k => {
+    // Calculate drawdown + recovery for the selected timeframe. Recovery
+    // makes the drawdown decision-relevant — '-77%' means very different
+    // things if the asset broke even in a year versus never came back.
+    const stats = assets.map(k => {
       const allPrices = _data.assets[k].monthlyPrices;
       const startIdx = Math.max(0, allPrices.length - months);
       const prices = allPrices.slice(startIdx);
-      return calcMaxDrawdown(prices).drawdown;
+      return calcMaxDrawdown(prices);
     });
+    const values = stats.map(s => s.drawdown);
 
     ctx.clearRect(0, 0, w, h);
 
@@ -3257,6 +3260,7 @@
 
     assets.forEach((key, i) => {
       const val = values[i];
+      const s = stats[i];
       const asset = _data.assets[key];
       const x = margin.left + gap + i * (barWidth + gap);
       const barH = plotH * (Math.abs(val) / Math.abs(minVal));
@@ -3269,6 +3273,15 @@
       ctx.textAlign = 'center';
       ctx.font = 'bold 13px -apple-system, sans-serif';
       ctx.fillText(val.toFixed(1) + '%', x + barWidth / 2, margin.top + barH + 18);
+
+      // Recovery label — months below 12 print as 'X mo back', else 'X.Xy back'
+      const recM = s.recoveryMonths;
+      const recLabel = recM === null
+        ? 'still down'
+        : recM < 12 ? recM + ' mo back' : (recM / 12).toFixed(1) + 'y back';
+      ctx.fillStyle = recM === null ? '#ef4444' : '#94a3b8';
+      ctx.font = '11px -apple-system, sans-serif';
+      ctx.fillText(recLabel, x + barWidth / 2, margin.top + barH + 34);
 
       // Ticker label
       ctx.fillStyle = '#94a3b8';
