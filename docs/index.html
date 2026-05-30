@@ -417,7 +417,7 @@
 
   .asset-row-summary {
     display: grid;
-    grid-template-columns: 28px minmax(0, 1.8fr) 130px 120px 100px 56px 24px;
+    grid-template-columns: 28px minmax(0, 1.8fr) 130px 110px 90px 110px 56px 24px;
     align-items: center;
     gap: 14px;
     padding: 12px 16px;
@@ -464,6 +464,22 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
   }
+  .asset-row-risk {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.15;
+  }
+  .asset-row-risk .risk-drop {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red);
+  }
+  .asset-row-risk .risk-recovery {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  .asset-row-risk .risk-recovery.still-down { color: var(--red); }
   .asset-row-grade {
     font-size: 14px;
     font-weight: 800;
@@ -1647,7 +1663,7 @@
   }
   @media (max-width: 900px) {
     .asset-row-summary {
-      grid-template-columns: 28px minmax(0, 1.5fr) 90px 80px 32px 16px;
+      grid-template-columns: 28px minmax(0, 1.5fr) 90px 80px 90px 32px 16px;
       gap: 10px;
     }
     .asset-row-summary .asset-row-return-col { display: none; }
@@ -1667,7 +1683,8 @@
       padding: 10px 12px;
     }
     .asset-row-summary .asset-row-category,
-    .asset-row-summary .asset-row-return-col { display: none; }
+    .asset-row-summary .asset-row-return-col,
+    .asset-row-summary .asset-row-risk-col { display: none; }
     .asset-row-details { padding: 0 14px 16px 14px; }
     .custom-ticker-bar { flex-wrap: wrap; }
     .fn-builder { grid-template-columns: 1fr; }
@@ -2105,32 +2122,36 @@
 
   function calcMaxDrawdown(prices) {
     if (!prices || prices.length < 2) return { drawdown: 0, peakDate: '', troughDate: '', recoveryMonths: null };
-    let peak = prices[0].close;
-    let peakDate = prices[0].date;
+    let runningPeak = prices[0].close;
+    let runningPeakDate = prices[0].date;
     let maxDD = 0;
+    let ddPeakValue = prices[0].close;  // Price at the pre-drawdown peak
     let ddPeakDate = '';
     let ddTroughDate = '';
     let troughIdx = 0;
 
     for (let i = 1; i < prices.length; i++) {
-      if (prices[i].close > peak) {
-        peak = prices[i].close;
-        peakDate = prices[i].date;
+      if (prices[i].close > runningPeak) {
+        runningPeak = prices[i].close;
+        runningPeakDate = prices[i].date;
       }
-      const dd = (prices[i].close - peak) / peak;
+      const dd = (prices[i].close - runningPeak) / runningPeak;
       if (dd < maxDD) {
         maxDD = dd;
-        ddPeakDate = peakDate;
+        ddPeakValue = runningPeak;     // Capture the peak from which this worst drawdown fell
+        ddPeakDate = runningPeakDate;
         ddTroughDate = prices[i].date;
         troughIdx = i;
       }
     }
 
-    // Find recovery
+    // Recovery = months from trough until close first regains the pre-drawdown
+    // peak. Uses ddPeakValue (captured at the time of the worst drawdown), not
+    // the final running peak — otherwise an asset that made a new all-time-high
+    // after recovering would look like it took years longer than it did.
     let recoveryMonths = null;
-    const peakAtDrawdown = peak;
     for (let i = troughIdx + 1; i < prices.length; i++) {
-      if (prices[i].close >= peakAtDrawdown) {
+      if (prices[i].close >= ddPeakValue) {
         recoveryMonths = i - troughIdx;
         break;
       }
@@ -2432,6 +2453,22 @@
         return ' <span class="metric-since">since ' + w.date + suffix + '</span>';
       };
 
+      // "Worst drop / how long to recover" — the visceral risk stat.
+      // Reads to the user as: here's the deepest hole this asset put its
+      // holders into, and here's how patient you'd have needed to be.
+      const ddPct = m.maxDrawdown.drawdown;
+      const recM = m.maxDrawdown.recoveryMonths;
+      const recoveryLabel = recM === null
+        ? '<span class="risk-recovery still-down">still down</span>'
+        : recM < 12
+          ? '<span class="risk-recovery">' + recM + ' mo to recover</span>'
+          : '<span class="risk-recovery">' + (recM / 12).toFixed(1) + 'y to recover</span>';
+      const riskTooltip = 'Worst peak-to-trough decline and how long it took to break even. From ' +
+        (m.maxDrawdown.peakDate || '?') + ' to ' + (m.maxDrawdown.troughDate || '?') + '.';
+      const riskHtml = ddPct < 0
+        ? '<div class="risk-drop">' + ddPct.toFixed(0) + '%</div>' + recoveryLabel
+        : '<div class="risk-drop" style="color:var(--muted)">—</div>';
+
       row.innerHTML = `
         <div class="asset-row-summary">
           <input type="checkbox" class="asset-checkbox" data-asset="${key}" ${isSelected ? 'checked' : ''} title="Select for comparison">
@@ -2442,6 +2479,7 @@
           <span class="asset-row-category" style="background:${catColor}20;color:${catColor}">${asset.category}</span>
           <div class="asset-row-price">$${formatNum(m.currentPrice)}</div>
           <div class="asset-row-return asset-row-return-col" title="${fiveYrTooltip}">${fiveYrHtml}</div>
+          <div class="asset-row-risk asset-row-risk-col" title="${riskTooltip}">${riskHtml}</div>
           <div class="asset-row-grade ${m.grade.class}" title="Catch-Up Fit Score">${m.grade.letter}</div>
           <span class="asset-row-chevron">▶</span>
         </div>
@@ -2456,7 +2494,7 @@
             <tr><td>10-Year Return (ann.)${sinceLabel(10)}</td><td>${fmtReturn(m.returns['10'])}</td></tr>
             <tr><td>Volatility (Std Dev)</td><td>${m.volatility !== null ? m.volatility.toFixed(1) + '%' : 'N/A'}</td></tr>
             <tr><td>Max Drawdown</td><td class="negative">${m.maxDrawdown.drawdown.toFixed(1)}%</td></tr>
-            <tr><td>Recovery Time</td><td>${m.maxDrawdown.recoveryMonths !== null ? m.maxDrawdown.recoveryMonths + ' months' : 'Not recovered'}</td></tr>
+            <tr><td>Time to Recover</td><td>${m.maxDrawdown.recoveryMonths !== null ? (m.maxDrawdown.recoveryMonths < 12 ? m.maxDrawdown.recoveryMonths + ' months' : (m.maxDrawdown.recoveryMonths / 12).toFixed(1) + ' years') : '<span class="negative">Still below pre-drop peak</span>'}</td></tr>
             <tr><td>Best 12-Month</td><td>${m.bestWorst.best ? '<span class="positive">+' + m.bestWorst.best.ret.toFixed(1) + '%</span>' : 'N/A'}</td></tr>
             <tr><td>Worst 12-Month</td><td>${m.bestWorst.worst ? '<span class="negative">' + m.bestWorst.worst.ret.toFixed(1) + '%</span>' : 'N/A'}</td></tr>
           </table>
