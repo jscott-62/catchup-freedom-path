@@ -95,6 +95,64 @@ DEFAULT_ASSETS = {
         "category": "Bitcoin ETF",
         "color": "#fb923c",
         "source": "yahoo"
+    },
+    # --- Tech Sector ETFs (broader exposure) ---
+    "SMH": {
+        "ticker": "SMH",
+        "name": "Semiconductor (SMH)",
+        "category": "Tech Index",
+        "color": "#84cc16",
+        "source": "yahoo"
+    },
+    "VGT": {
+        "ticker": "VGT",
+        "name": "Vanguard Info Tech (VGT)",
+        "category": "Tech Index",
+        "color": "#0ea5e9",
+        "source": "yahoo"
+    },
+    "XLK": {
+        "ticker": "XLK",
+        "name": "Tech Select Sector (XLK)",
+        "category": "Tech Index",
+        "color": "#14b8a6",
+        "source": "yahoo"
+    },
+    # --- Mega-Cap Tech (Mag-7 individual stocks) ---
+    "AAPL": {
+        "ticker": "AAPL",
+        "name": "Apple (AAPL)",
+        "category": "Individual Stock",
+        "color": "#94a3b8",
+        "source": "yahoo"
+    },
+    "MSFT": {
+        "ticker": "MSFT",
+        "name": "Microsoft (MSFT)",
+        "category": "Individual Stock",
+        "color": "#0d9488",
+        "source": "yahoo"
+    },
+    "AMZN": {
+        "ticker": "AMZN",
+        "name": "Amazon (AMZN)",
+        "category": "Individual Stock",
+        "color": "#d97706",
+        "source": "yahoo"
+    },
+    "GOOGL": {
+        "ticker": "GOOGL",
+        "name": "Alphabet (GOOGL)",
+        "category": "Individual Stock",
+        "color": "#dc2626",
+        "source": "yahoo"
+    },
+    "AVGO": {
+        "ticker": "AVGO",
+        "name": "Broadcom (AVGO)",
+        "category": "Individual Stock",
+        "color": "#7c3aed",
+        "source": "yahoo"
     }
 }
 
