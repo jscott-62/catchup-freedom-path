@@ -1,0 +1,4217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Freedom Path Explorer</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --card: #1e293b;
+    --border: #334155;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #f59e0b;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #3b82f6;
+    --purple: #a855f7;
+    --cyan: #06b6d4;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 24px;
+    padding-bottom: 80px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1400px; margin: 0 auto; }
+
+  /* ===== HEADER ===== */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  .header .subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+  .header .data-date {
+    color: var(--muted);
+    font-size: 13px;
+    text-align: right;
+  }
+  .header-right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+  }
+  .data-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .data-action-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .data-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .data-action-btn.danger:hover { border-color: var(--red); color: var(--red); }
+  .data-action-btn .icon { font-size: 13px; }
+
+  /* ===== SELLING RULES TAB ===== */
+  .selling-thesis {
+    background: linear-gradient(180deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.03));
+    border: 1px solid rgba(245, 158, 11, 0.4);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+  }
+  .selling-thesis-headline {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+    margin-bottom: 10px;
+    letter-spacing: 0.3px;
+  }
+  .selling-thesis-body {
+    color: var(--text);
+    font-size: 14.5px;
+    line-height: 1.6;
+    max-width: 720px;
+  }
+  .selling-status {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .selling-status-icon {
+    font-size: 28px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .selling-status-body {
+    flex: 1;
+  }
+  .selling-status-title {
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .selling-status-detail {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .selling-status.green { border-color: rgba(34, 197, 94, 0.5); }
+  .selling-status.green .selling-status-title { color: var(--green); }
+  .selling-status.yellow { border-color: rgba(245, 158, 11, 0.5); }
+  .selling-status.yellow .selling-status-title { color: var(--accent); }
+  .selling-status.red { border-color: rgba(239, 68, 68, 0.5); }
+  .selling-status.red .selling-status-title { color: var(--red); }
+
+  .rule-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 22px 24px;
+    margin-bottom: 20px;
+  }
+  .rule-card-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .rule-card-number {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .rule-card-title {
+    font-size: 18px;
+    font-weight: 700;
+  }
+  .rule-card-tagline {
+    color: var(--muted);
+    font-size: 13px;
+    margin-left: auto;
+  }
+  .rule-card-summary {
+    color: var(--muted);
+    font-size: 13.5px;
+    line-height: 1.55;
+    margin-bottom: 16px;
+  }
+  .rule-card-status {
+    margin-top: 12px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .rule-card-status.actionable {
+    background: rgba(245, 158, 11, 0.08);
+    border-color: rgba(245, 158, 11, 0.4);
+  }
+  .rule-card-status.urgent {
+    background: rgba(239, 68, 68, 0.08);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+  .rule-card-status.calm {
+    background: rgba(34, 197, 94, 0.06);
+    border-color: rgba(34, 197, 94, 0.3);
+  }
+
+  /* Doubling ladder visualization */
+  .ladder {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .ladder-rung {
+    display: grid;
+    grid-template-columns: 24px 1fr auto;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .ladder-rung.passed { opacity: 0.55; }
+  .ladder-rung.next {
+    border-color: var(--accent);
+    background: rgba(245, 158, 11, 0.08);
+  }
+  .ladder-rung.next .ladder-marker { background: var(--accent); color: var(--bg); }
+  .ladder-rung.you-are-here {
+    border-color: var(--green);
+    background: rgba(34, 197, 94, 0.08);
+    border-style: dashed;
+  }
+  .ladder-marker {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--card);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .ladder-rung.passed .ladder-marker { background: var(--green); color: var(--bg); }
+  .ladder-label { color: var(--text); }
+  .ladder-price {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .ladder-rung.you-are-here .ladder-label { color: var(--green); font-weight: 700; }
+
+  /* Stale data warning banner */
+  .stale-banner {
+    display: none;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.5);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .stale-banner.severe {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.5);
+    color: var(--red);
+  }
+  .stale-banner strong { font-weight: 700; }
+  .stale-banner a { color: inherit; text-decoration: underline; }
+
+  /* Toast notification */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--card);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(-8px); }
+  .toast.error { border-color: var(--red); }
+  .toast.success { border-color: var(--green); }
+
+  /* ===== USER INPUT PANEL ===== */
+  .input-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+    margin-bottom: 24px;
+    display: flex;
+    gap: 24px;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 180px;
+  }
+  .input-group label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .input-group input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 16px;
+    font-weight: 600;
+    width: 100%;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-group input:focus {
+    border-color: var(--accent);
+  }
+  .input-group .unit {
+    font-size: 14px;
+    color: var(--muted);
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .input-wrapper {
+    position: relative;
+  }
+  .your-numbers {
+    flex: 2;
+    min-width: 300px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 14px;
+    color: var(--accent);
+    line-height: 1.5;
+  }
+  .your-numbers strong { font-weight: 700; }
+
+  /* ===== TABS ===== */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 24px;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tab-btn {
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
+
+  /* ===== CARDS ===== */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+  }
+  .card h2 {
+    font-size: 18px;
+    margin-bottom: 16px;
+    color: var(--accent);
+  }
+  .card h3 {
+    font-size: 15px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
+
+  /* ===== ASSET LIST (expandable rows) ===== */
+  .asset-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .asset-row {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 0.2s, opacity 0.2s;
+    overflow: hidden;
+  }
+  .asset-row:hover { border-color: var(--accent); }
+  .asset-row.selected { border-color: var(--accent); }
+  .asset-row.dimmed { opacity: 0.5; }
+
+  .asset-row-summary {
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1.8fr) 130px 120px 100px 56px 24px;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .asset-row-summary > * { min-width: 0; }
+  .asset-row-name {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow: hidden;
+  }
+  .asset-row-name .name {
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .asset-row-name .ticker {
+    font-size: 12px;
+    color: var(--muted);
+  }
+  .asset-row-category {
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    justify-self: start;
+    white-space: nowrap;
+  }
+  .asset-row-price {
+    font-size: 15px;
+    font-weight: 700;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .asset-row-return {
+    font-size: 14px;
+    font-weight: 600;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .asset-row-grade {
+    font-size: 14px;
+    font-weight: 800;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    justify-self: center;
+  }
+  .asset-row-chevron {
+    color: var(--muted);
+    font-size: 14px;
+    transition: transform 0.2s;
+    justify-self: center;
+  }
+  .asset-row.expanded .asset-row-chevron { transform: rotate(90deg); }
+
+  .asset-row-details {
+    display: none;
+    padding: 0 20px 20px 20px;
+    border-top: 1px solid var(--border);
+  }
+  .asset-row.expanded .asset-row-details { display: block; }
+  .asset-row-details .asset-price-large {
+    font-size: 24px;
+    font-weight: 700;
+    margin-top: 16px;
+    margin-bottom: 2px;
+  }
+  .asset-row-details .asset-price-date {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 14px;
+  }
+
+  /* Asset checkbox — inline with row */
+  .asset-checkbox {
+    width: 22px;
+    height: 22px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .asset-checkbox:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .asset-checkbox:checked::after {
+    content: '✓';
+    display: block;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--bg);
+    line-height: 18px;
+  }
+  .asset-checkbox:hover { border-color: var(--accent); }
+
+  /* Selection summary bar */
+  .selection-bar {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .selection-count {
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .selection-count strong { color: var(--accent); }
+  .selection-actions {
+    display: flex;
+    gap: 8px;
+  }
+  .sel-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .sel-btn:hover { color: var(--text); border-color: var(--text); }
+  /* (legacy card classes removed — overview now uses .asset-row list) */
+
+  /* ===== EMPTY STATE BANNER (Compare & DCA tabs) ===== */
+  .empty-state {
+    background: linear-gradient(180deg, rgba(245,158,11,0.08), rgba(245,158,11,0.02));
+    border: 1px solid rgba(245,158,11,0.4);
+    border-radius: 12px;
+    padding: 32px 24px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .empty-state-icon {
+    font-size: 36px;
+    margin-bottom: 8px;
+    line-height: 1;
+  }
+  .empty-state-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .empty-state-desc {
+    color: var(--muted);
+    font-size: 14px;
+    margin-bottom: 18px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+    line-height: 1.5;
+  }
+  .empty-state-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 10px 22px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  .empty-state-btn:hover { transform: translateY(-1px); }
+
+  /* ===== METRICS TABLE ===== */
+  .metrics-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+  }
+  .metrics-table th {
+    text-align: left;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .metrics-table td {
+    padding: 8px 0;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+  }
+  .metrics-table td:last-child { text-align: right; font-weight: 600; }
+  .metric-since {
+    font-size: 11px;
+    color: var(--muted);
+    font-weight: 400;
+    margin-left: 4px;
+  }
+  .positive { color: var(--green); }
+  .negative { color: var(--red); }
+
+  /* ===== FIT SCORE ===== */
+  .fit-score-compare {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 700px) {
+    .fit-score-compare { grid-template-columns: 1fr; gap: 14px; }
+  }
+  .fit-score-compare .fit-score-container {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+  .fit-score-container {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .fit-score-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .fit-score-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .fit-score-grade {
+    font-size: 20px;
+    font-weight: 800;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+  }
+  .fit-score-bar {
+    width: 100%;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  .fit-score-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s ease;
+  }
+  .fit-score-summary {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* Grade colors */
+  .grade-a { background: rgba(34, 197, 94, 0.15); color: var(--green); }
+  .grade-b { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+  .grade-c { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+  .grade-d { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+  .grade-f { background: rgba(148, 163, 184, 0.15); color: var(--muted); }
+
+  /* ===== CHARTS ===== */
+  .chart-container {
+    margin-bottom: 24px;
+  }
+  .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .chart-title {
+    font-size: 16px;
+    font-weight: 600;
+  }
+  .timeframe-btns {
+    display: flex;
+    gap: 4px;
+  }
+  .timeframe-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .timeframe-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  canvas {
+    width: 100%;
+    height: 350px;
+    border-radius: 8px;
+    background: var(--bg);
+  }
+  #dcaGrowthChart { height: 400px; }
+  #volatilityChart { height: 350px; }
+  #drawdownChart { height: 300px; }
+
+  /* ===== DCA TABLE ===== */
+  .dca-table-wrap { overflow-x: auto; }
+  .dca-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 700px;
+  }
+  .dca-table th {
+    text-align: left;
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    border-bottom: 2px solid var(--border);
+    white-space: nowrap;
+  }
+  .dca-table td {
+    padding: 12px;
+    font-size: 14px;
+    border-bottom: 1px solid rgba(51, 65, 85, 0.3);
+  }
+  .dca-table tr:nth-child(even) td { background: rgba(15, 23, 42, 0.3); }
+  .dca-table .asset-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  .dca-period-header {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-top: 24px;
+    margin-bottom: 12px;
+  }
+  .dca-period-header:first-child { margin-top: 0; }
+
+  /* ===== PORTFOLIO BUILDER ===== */
+  .portfolio-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .slider-group {
+    margin-bottom: 16px;
+  }
+  .slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+  }
+  .slider-name {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .slider-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 8px;
+    background: var(--bg);
+    border-radius: 4px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+  .allocation-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    background: var(--bg);
+    border-radius: 8px;
+    margin-top: 16px;
+    font-weight: 600;
+  }
+  .allocation-ok { color: var(--green); }
+  .allocation-warn { color: var(--red); }
+  .blended-metrics {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .blended-metric {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 16px;
+    text-align: center;
+    position: relative;
+  }
+  .blended-metric .value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .blended-metric .label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  /* Info icon (small question mark in top right of each metric) */
+  .metric-info-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    transition: all 0.15s;
+  }
+  .metric-info-btn:hover {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .metric-info-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  /* The popup explainer card */
+  .metric-explainer {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 8px;
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 16px 18px;
+    font-size: 13px;
+    color: var(--text);
+    text-align: left;
+    line-height: 1.55;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    z-index: 10;
+  }
+  .metric-explainer.show { display: block; }
+  .metric-explainer strong {
+    color: var(--accent);
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .metric-explainer p { margin-bottom: 8px; }
+  .metric-explainer p:last-child { margin-bottom: 0; }
+  .metric-explainer .close-hint {
+    font-size: 11px;
+    color: var(--muted);
+    font-style: italic;
+    margin-top: 8px;
+  }
+
+  /* ===== CATEGORY FILTERS ===== */
+  .category-filters {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .cat-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .cat-btn:hover { color: var(--text); border-color: var(--text); }
+  .cat-btn.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .cat-btn .count {
+    font-size: 11px;
+    opacity: 0.7;
+    margin-left: 4px;
+  }
+
+  /* ===== CUSTOM TICKER ===== */
+  .custom-ticker-bar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 16px 20px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .custom-ticker-bar input {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 14px;
+    width: 160px;
+    outline: none;
+  }
+  .custom-ticker-bar input:focus { border-color: var(--accent); }
+  .custom-ticker-bar button {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .custom-ticker-bar button:hover { opacity: 0.85; }
+  .custom-ticker-bar .hint {
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .custom-ticker-msg {
+    font-size: 13px;
+    margin-left: 8px;
+  }
+
+  /* ===== PLAN SUMMARY BAR ===== */
+  .plan-summary {
+    display: none;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 10px;
+    padding: 12px 18px;
+    margin-bottom: 20px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .plan-summary.show { display: flex; }
+  .plan-summary-text {
+    font-size: 14px;
+    color: var(--text);
+  }
+  .plan-summary-text strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+  .plan-summary-link {
+    font-size: 13px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .plan-summary-link:hover { text-decoration: underline; }
+
+  /* ===== FREEDOM NUMBER BUILDER ===== */
+  .fn-builder {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  .fn-section {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .fn-section h3 {
+    font-size: 14px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .fn-section .fn-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .fn-field {
+    margin-bottom: 14px;
+  }
+  .fn-field label {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .fn-field input[type="number"],
+  .fn-field select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+  }
+  .fn-field input[type="number"]:focus,
+  .fn-field select:focus {
+    border-color: var(--accent);
+  }
+  .fn-field .hint {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    font-style: italic;
+  }
+  .fn-toggle {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .fn-toggle button {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .fn-toggle button.active {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+  }
+  .fn-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--muted);
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  .fn-checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .fn-result {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(245, 158, 11, 0.03));
+    border: 2px solid rgba(245, 158, 11, 0.4);
+    border-radius: 12px;
+    padding: 28px;
+    text-align: center;
+  }
+  .fn-result .fn-label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .fn-result .fn-value {
+    font-size: 56px;
+    font-weight: 800;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .fn-result .fn-breakdown {
+    font-size: 14px;
+    color: var(--text);
+    line-height: 1.7;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  .fn-result .fn-breakdown strong {
+    color: var(--accent);
+  }
+  .fn-result .fn-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+  }
+  .fn-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .fn-btn:hover { opacity: 0.9; }
+  .fn-btn.secondary {
+    background: transparent;
+    color: var(--accent);
+    border: 1px solid var(--accent);
+  }
+  .fn-math {
+    display: none;
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    text-align: left;
+    font-size: 13px;
+    color: var(--muted);
+    font-family: ui-monospace, monospace;
+  }
+  .fn-math.show { display: block; }
+
+  /* Inflation slider (added to FN result panel) */
+  .inflation-block {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(245, 158, 11, 0.25);
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+  }
+  .inflation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 12px;
+  }
+  .inflation-label {
+    font-size: 13px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+  .inflation-value {
+    font-size: 22px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .inflation-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+  }
+  .inflation-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+  }
+  .inflation-slider::-moz-range-thumb {
+    width: 22px;
+    height: 22px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid var(--bg);
+  }
+  .inflation-ticks {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+  .inflation-explainer {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: rgba(245, 158, 11, 0.06);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  .inflation-explainer strong { color: var(--accent); }
+  .fn-value-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 12px;
+  }
+  .fn-value-today-ref {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 500;
+    margin-top: 4px;
+  }
+
+  /* Required return as co-headline */
+  .rr-headline {
+    margin-top: 20px;
+    padding: 18px 22px;
+    background: rgba(15, 23, 42, 0.45);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  .rr-headline-label {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .rr-headline-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .rr-headline-value {
+    font-size: 48px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--accent);
+    transition: color 0.15s;
+  }
+  .rr-headline-value.index-zone { color: var(--blue); }
+  .rr-headline-value.growth-zone { color: var(--accent); }
+  .rr-headline-value.concentrated-zone { color: #fb923c; }
+  .rr-headline-real {
+    font-size: 14px;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .rr-headline-zone {
+    margin-top: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .rr-headline-zone.index-zone { color: var(--blue); }
+  .rr-headline-zone.growth-zone { color: var(--accent); }
+  .rr-headline-zone.concentrated-zone { color: #fb923c; }
+
+  /* Info icon + collapsible explainer (FN tab inflation help) */
+  .info-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--muted);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 8px;
+    transition: all 0.15s;
+    vertical-align: middle;
+  }
+  .info-icon-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .info-icon-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: var(--bg);
+  }
+  .info-explainer {
+    display: none;
+    margin-top: 12px;
+    padding: 14px 18px;
+    background: rgba(15, 23, 42, 0.65);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--text);
+    text-align: left;
+  }
+  .info-explainer.show { display: block; }
+  .info-explainer strong { color: var(--accent); }
+  .info-explainer h4 {
+    color: var(--accent);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 10px;
+    margin-bottom: 4px;
+  }
+  .info-explainer h4:first-child { margin-top: 0; }
+  .info-explainer ul {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0;
+  }
+  .info-explainer li {
+    padding: 2px 0;
+    padding-left: 14px;
+    position: relative;
+  }
+  .info-explainer li::before {
+    content: '•';
+    color: var(--accent);
+    position: absolute;
+    left: 0;
+  }
+
+  .rr-headline-hint {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.55;
+    margin-top: 10px;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .rr-headline-hint strong { color: var(--accent); }
+
+  /* Inflation toggle button */
+  .inflation-toggle-wrap {
+    text-align: center;
+    margin-top: 18px;
+  }
+  .inflation-toggle-btn {
+    background: transparent;
+    border: 1px dashed var(--border);
+    color: var(--muted);
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .inflation-toggle-btn:hover {
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--accent);
+  }
+  .inflation-toggle-btn.active {
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--accent);
+    background: rgba(245, 158, 11, 0.05);
+  }
+  .inflation-toggle-btn .icon { margin-right: 6px; }
+  .fn-result.hide-inflation .inflation-block,
+  .fn-result.hide-inflation .fn-value-today-ref {
+    display: none !important;
+  }
+
+  .fn-math .fn-math-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+  .fn-math .fn-math-total {
+    border-top: 1px dashed var(--border);
+    margin-top: 4px;
+    padding-top: 8px;
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ===== DISCLAIMER ===== */
+  .disclaimer {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(239, 68, 68, 0.05);
+    border: 1px solid rgba(239, 68, 68, 0.15);
+    border-radius: 12px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .disclaimer strong { color: var(--red); }
+
+  /* ===== MY PORTFOLIO ===== */
+  .holding-row {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr auto;
+    gap: 12px;
+    align-items: center;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    margin-bottom: 8px;
+  }
+  .holding-header {
+    display: grid;
+    grid-template-columns: 2.5fr 1.5fr 1.5fr 1.5fr auto;
+    gap: 12px;
+    padding: 0 12px 6px;
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .holding-row select,
+  .holding-row input {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    outline: none;
+  }
+  .holding-row select:focus,
+  .holding-row input:focus {
+    border-color: var(--accent);
+  }
+  .holding-row .holding-price,
+  .holding-row .holding-value {
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .holding-row .holding-remove {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .holding-row .holding-remove:hover {
+    color: var(--red);
+    border-color: var(--red);
+  }
+
+  .portfolio-summary {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 16px;
+  }
+  .portfolio-summary h3 {
+    font-size: 14px;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 14px;
+  }
+  .portfolio-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .portfolio-total .label {
+    color: var(--muted);
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 600;
+  }
+  .portfolio-total .value {
+    font-size: 28px;
+    font-weight: 800;
+    color: var(--accent);
+  }
+  .allocation-bar {
+    display: flex;
+    height: 28px;
+    width: 100%;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .allocation-bar-segment {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #0f172a;
+    font-size: 11px;
+    font-weight: 700;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+  .allocation-breakdown {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 8px 16px;
+  }
+  .allocation-breakdown-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding: 4px 0;
+  }
+  .allocation-breakdown-item .dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 8px;
+  }
+  .portfolio-snapshot-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin-top: 14px;
+  }
+  .portfolio-snapshot-metric {
+    background: var(--card);
+    padding: 14px;
+    border-radius: 8px;
+    text-align: center;
+  }
+  .portfolio-snapshot-metric .val {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .portfolio-snapshot-metric .lbl {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1200px) {
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .fn-builder { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 900px) {
+    .asset-row-summary {
+      grid-template-columns: 28px minmax(0, 1.5fr) 90px 80px 32px 16px;
+      gap: 10px;
+    }
+    .asset-row-summary .asset-row-return-col { display: none; }
+    .asset-row-category { font-size: 9px; padding: 2px 7px; }
+  }
+  @media (max-width: 768px) {
+    body { padding: 16px; }
+    .header { flex-direction: column; align-items: flex-start; gap: 8px; }
+    .header .data-date { text-align: left; }
+    .input-panel { flex-direction: column; gap: 16px; }
+    .input-group { min-width: 100%; }
+    .your-numbers { min-width: 100%; }
+    .portfolio-grid { grid-template-columns: 1fr; }
+    .asset-row-summary {
+      grid-template-columns: 26px minmax(0, 1fr) 80px 32px 14px;
+      gap: 8px;
+      padding: 10px 12px;
+    }
+    .asset-row-summary .asset-row-category,
+    .asset-row-summary .asset-row-return-col { display: none; }
+    .asset-row-details { padding: 0 14px 16px 14px; }
+    .custom-ticker-bar { flex-wrap: wrap; }
+    .fn-builder { grid-template-columns: 1fr; }
+    .fn-result .fn-value { font-size: 42px; }
+    .holding-row, .holding-header { grid-template-columns: 1fr 1fr; }
+    .holding-header { display: none; }
+    .portfolio-snapshot-metrics { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 480px) {
+    body { padding: 12px; }
+    .header h1 { font-size: 20px; }
+    .asset-price { font-size: 22px; }
+    .tab-btn { padding: 10px 14px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h1>Freedom Path Explorer</h1>
+      <div class="subtitle">See which assets can actually get you to your Freedom Number</div>
+    </div>
+    <div class="header-right">
+      <div class="data-date" id="dataDate">Data as of: Loading...</div>
+      <div class="data-actions">
+        <button class="data-action-btn" id="btnExport" title="Download your settings as a JSON file"><span class="icon">⬇</span> Export</button>
+        <button class="data-action-btn" id="btnImport" title="Load settings from a previously exported file"><span class="icon">⬆</span> Import</button>
+        <button class="data-action-btn danger" id="btnReset" title="Erase all your data and start fresh"><span class="icon">⟲</span> Reset</button>
+        <input type="file" id="importFileInput" accept="application/json,.json" style="display:none">
+      </div>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <!-- Stale-data warning (auto-shown if asset-data hasn't refreshed) -->
+  <div class="stale-banner" id="staleBanner"></div>
+
+  <!-- PLAN SUMMARY (hidden on Freedom Number tab) -->
+  <div class="plan-summary" id="planSummary">
+    <div class="plan-summary-text" id="planSummaryText">
+      Start on the Freedom Number tab to build your plan.
+    </div>
+    <a href="#" class="plan-summary-link" id="planSummaryLink">Change these →</a>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="freedom">1. Freedom Number</button>
+    <button class="tab-btn" data-tab="overview">2. Overview</button>
+    <button class="tab-btn" data-tab="compare">3. Compare</button>
+    <button class="tab-btn" data-tab="dca">4. DCA Simulator</button>
+  </div>
+
+  <!-- TAB: FREEDOM NUMBER BUILDER -->
+  <div class="tab-content active" id="tab-freedom">
+    <div style="margin-bottom: 20px; padding: 16px 20px; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px;">
+      <strong style="color: var(--accent);">Your Freedom Number</strong> is the total amount you need saved by retirement to live comfortably. Most calculators make you guess at it. This one helps you build it from the ground up using the 4% rule, adjusted for your real inputs.
+    </div>
+
+    <div class="fn-builder">
+      <!-- SECTION 1: Expenses -->
+      <div class="fn-section">
+        <h3>1. Your Current Expenses</h3>
+        <p class="fn-sub">What do you spend TODAY? Start with your current monthly expenses. The Retirement Adjustment below will tune this for your retirement years.</p>
+
+        <div class="fn-toggle">
+          <button id="expToggleSimple" class="active">Simple</button>
+          <button id="expToggleDetailed">Break it down</button>
+        </div>
+
+        <!-- Simple mode -->
+        <div id="expSimpleMode">
+          <div class="fn-field">
+            <label>Current Monthly Expenses</label>
+            <input type="number" id="expMonthly" min="500" max="50000" step="100" value="6000">
+            <span class="hint">What you spend per month right now on everything</span>
+          </div>
+        </div>
+
+        <!-- Detailed mode (hidden by default) -->
+        <div id="expDetailedMode" style="display:none;">
+          <div style="font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 12px; padding: 8px 12px; background: rgba(245, 158, 11, 0.08); border-radius: 6px;">
+            Enter your <strong>current monthly</strong> spending by category. We'll multiply by 12 for the annual total, then the Retirement Adjustment below tunes it for your retirement years.
+          </div>
+          <div class="fn-field">
+            <label>Housing ($/month)</label>
+            <input type="number" id="expHousing" min="0" step="50" value="2000">
+            <span class="hint">Rent or mortgage, property taxes, insurance, maintenance</span>
+          </div>
+          <div class="fn-field">
+            <label>Food &amp; Groceries ($/month)</label>
+            <input type="number" id="expFood" min="0" step="50" value="800">
+          </div>
+          <div class="fn-field">
+            <label>Healthcare &amp; Insurance ($/month)</label>
+            <input type="number" id="expHealth" min="0" step="50" value="1200">
+            <span class="hint">Healthcare costs rise significantly in retirement</span>
+          </div>
+          <div class="fn-field">
+            <label>Transportation ($/month)</label>
+            <input type="number" id="expTransport" min="0" step="50" value="500">
+          </div>
+          <div class="fn-field">
+            <label>Travel &amp; Lifestyle ($/month)</label>
+            <input type="number" id="expTravel" min="0" step="50" value="800">
+            <span class="hint">What makes retirement worth it</span>
+          </div>
+          <div class="fn-field">
+            <label>Other ($/month)</label>
+            <input type="number" id="expOther" min="0" step="50" value="500">
+            <span class="hint">Subscriptions, hobbies, pets, gifts</span>
+          </div>
+          <div class="fn-field" id="expDetailedTotal" style="padding: 10px 12px; background: var(--bg); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);">
+            <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total Monthly</span>
+            <span id="expDetailedTotalValue" style="font-size: 18px; font-weight: 700; color: var(--accent);">$5,800</span>
+          </div>
+        </div>
+
+        <div class="fn-field" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <label>Retirement Adjustment</label>
+          <select id="expLifestyle">
+            <option value="0.70">I'll spend less (70% of today)</option>
+            <option value="0.80" selected>I'll spend slightly less (80% of today)</option>
+            <option value="1.00">I'll spend about the same (100%)</option>
+            <option value="1.10">I'll spend slightly more (110%)</option>
+            <option value="1.20">I'll spend more (120% of today)</option>
+          </select>
+          <span class="hint">Most retirees spend 70-80% of what they spend now (no commute, kids grown, mortgage often paid). But healthcare goes UP, and travel might too. Adjust based on YOUR plans.</span>
+        </div>
+      </div>
+
+      <!-- SECTION 2: Social Security + Other Income -->
+      <div class="fn-section">
+        <h3>2. Guaranteed Income in Retirement</h3>
+        <p class="fn-sub">Every dollar of guaranteed income is a dollar your savings doesn't have to produce. This is why including these is critical.</p>
+
+        <div class="fn-field">
+          <label>Social Security (monthly)</label>
+          <input type="number" id="incSocSec" min="0" max="10000" step="50" value="1800">
+          <span class="hint">Look it up at ssa.gov/myaccount. Average is around $1,800.</span>
+        </div>
+
+        <label class="fn-checkbox">
+          <input type="checkbox" id="incSkipSS">
+          I don't want to count on Social Security
+        </label>
+
+        <div class="fn-field" style="margin-top: 16px;">
+          <label>Pension (monthly, if any)</label>
+          <input type="number" id="incPension" min="0" step="50" value="0">
+        </div>
+
+        <div class="fn-field">
+          <label>Rental Income (monthly, if any)</label>
+          <input type="number" id="incRental" min="0" step="50" value="0">
+        </div>
+
+        <div class="fn-field">
+          <label>Part-Time Work Income (monthly)</label>
+          <input type="number" id="incPartTime" min="0" step="50" value="0">
+          <span class="hint">Many retirees work part-time for the first 5-10 years</span>
+        </div>
+
+        <div class="fn-field" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <label>Withdrawal Rate</label>
+          <select id="wdRate">
+            <option value="0.03">3% — Very Conservative (40+ year retirement, crash-resistant)</option>
+            <option value="0.04" selected>4% — Standard (Trinity Study, 30-year retirement)</option>
+            <option value="0.05">5% — Aggressive (shorter retirement, comfortable with risk)</option>
+          </select>
+          <span class="hint">Lower rate = higher Freedom Number but more safety. Higher rate = lower target but more risk of running out.</span>
+        </div>
+      </div>
+
+      <!-- SECTION 3: Starting Point -->
+      <div class="fn-section">
+        <h3>3. Your Starting Point</h3>
+        <p class="fn-sub">Where are you today, and what can you commit to each month? These three inputs plus your Freedom Number determine the annual return rate you need.</p>
+
+        <div class="fn-field">
+          <label>Current Savings</label>
+          <input type="number" id="spSavings" min="0" step="1000" value="50000">
+          <span class="hint">All retirement savings you have today (401k, IRA, brokerage, crypto)</span>
+        </div>
+
+        <div class="fn-field">
+          <label>Monthly Investment</label>
+          <input type="number" id="spMonthly" min="0" step="50" value="500">
+          <span class="hint">How much you can realistically add each month</span>
+        </div>
+
+        <div class="fn-field">
+          <label>Years to Retirement</label>
+          <input type="number" id="spYears" min="1" max="40" step="1" value="15">
+          <span class="hint">How long you have to build your nest egg</span>
+        </div>
+
+        <div class="fn-field" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
+          <label style="color: var(--accent);">Required Annual Return</label>
+          <div style="font-size: 32px; font-weight: 800; color: var(--accent); margin-top: 4px;" id="spRequiredReturn">—</div>
+          <span class="hint" id="spRequiredReturnHint">Your Freedom Number and these three inputs determine this rate.</span>
+        </div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="fn-result hide-inflation" id="fnResultPanel">
+        <div class="fn-label" id="fnHeadlineLabel">Your Freedom Number</div>
+        <div class="fn-value-row">
+          <div class="fn-value" id="fnValue">$0</div>
+          <div class="fn-value-today-ref" id="fnTodayRef" style="display:none;">≈ $0 in today's purchasing power</div>
+        </div>
+        <div class="fn-breakdown" id="fnBreakdown">
+          Fill in the fields above to calculate your personalized Freedom Number.
+        </div>
+
+        <!-- Required return as a co-headline. Drives the asset decision. -->
+        <div class="rr-headline">
+          <div class="rr-headline-label">Required Annual Return</div>
+          <div class="rr-headline-row">
+            <div class="rr-headline-value" id="rrHeadlineValue">...</div>
+            <div class="rr-headline-real" id="rrHeadlineReal"></div>
+          </div>
+          <div class="rr-headline-zone" id="rrHeadlineZone"></div>
+          <div class="rr-headline-hint" id="rrHeadlineHint">Enter your savings and timeline above to see what return you need.</div>
+        </div>
+
+        <div class="inflation-toggle-wrap">
+          <button class="inflation-toggle-btn" id="inflationToggleBtn">
+            <span class="icon">📉</span><span id="inflationToggleText">Show Inflation Impact →</span>
+          </button>
+        </div>
+
+        <div class="inflation-block">
+          <div class="inflation-header">
+            <span class="inflation-label">
+              Inflation Assumption
+              <button class="info-icon-btn" id="inflationInfoBtn" title="What is this?">?</button>
+            </span>
+            <span class="inflation-value" id="inflationValue">3%</span>
+          </div>
+          <input type="range" id="inflationSlider" class="inflation-slider" min="0" max="10" step="0.5" value="3">
+          <div class="inflation-ticks">
+            <span>0%</span><span>2%</span><span>4%</span><span>6%</span><span>8%</span><span>10%</span>
+          </div>
+
+          <div class="info-explainer" id="inflationInfoExplainer">
+            <h4>What inflation does to your number</h4>
+            <p>Inflation is the slow rise in prices over time. A dollar today does not buy what it bought 20 years ago. The same is true going forward: by the time you retire in 15 years, the dollars in your retirement account will buy less than they do now.</p>
+
+            <h4>Why we show two return numbers</h4>
+            <p>Your investment statement will report one return (for example, 21%). That is the number on paper.</p>
+            <p>But inflation eats into that growth. If your account grew 21% but prices went up 3%, only 18% of that growth actually bought you more in real life.</p>
+            <ul>
+              <li><strong>21%</strong>: what your investments need to grow on paper each year</li>
+              <li><strong>18% after inflation</strong>: what your real buying power needs to grow</li>
+            </ul>
+
+            <h4>What inflation rate should you pick?</h4>
+            <ul>
+              <li>The government's official measure (CPI) usually says 2-3%</li>
+              <li>Many people believe real cost-of-living inflation, especially in housing, healthcare, and food, runs more like 6-10%</li>
+              <li>For a stress test, slide up to 10% and see what happens</li>
+            </ul>
+          </div>
+
+          <div class="inflation-explainer">
+            Official CPI runs around 2 to 3 percent. Many people believe the real cost-of-living inflation in housing, healthcare, and food is closer to 6 to 10 percent. Slide higher to see what happens to your number when the dollar is debased.
+          </div>
+        </div>
+
+        <div class="fn-actions">
+          <button class="fn-btn" id="fnUseInPlan">Use This in My Catch-Up Plan →</button>
+          <button class="fn-btn secondary" id="fnShowMath">Show the Math</button>
+        </div>
+        <div class="fn-math" id="fnMath"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB: OVERVIEW -->
+  <div class="tab-content" id="tab-overview">
+    <div class="selection-bar">
+      <div class="selection-count" id="selectionCount">
+        Select assets to compare. <strong>0 selected</strong>
+      </div>
+      <div class="selection-actions">
+        <button class="sel-btn" id="selAllCrypto">Select All Crypto</button>
+        <button class="sel-btn" id="selAllTraditional">Select All Stocks</button>
+        <button class="sel-btn" id="selClearAll">Clear All</button>
+      </div>
+    </div>
+    <div class="category-filters" id="categoryFilters">
+      <button class="cat-btn active" data-category="all">All</button>
+      <button class="cat-btn" data-category="Cryptocurrency">Crypto</button>
+      <button class="cat-btn" data-category="traditional">Stocks & ETFs</button>
+    </div>
+    <div class="custom-ticker-bar">
+      <input type="text" id="customTickerInput" placeholder="Enter ticker..." maxlength="10">
+      <button id="addTickerBtn">+ Add Asset</button>
+      <span class="hint">Add any stock, ETF, or crypto already in the database</span>
+      <span class="custom-ticker-msg" id="tickerMsg"></span>
+    </div>
+    <div class="asset-list" id="assetGrid"></div>
+  </div>
+
+  <!-- TAB: COMPARE -->
+  <div class="tab-content" id="tab-compare">
+    <div class="empty-state" id="compareEmptyState" style="display:none;">
+      <div class="empty-state-icon">📊</div>
+      <div class="empty-state-title">Pick assets to compare</div>
+      <div class="empty-state-desc">Head over to the Overview tab and check the box next to any assets you want to see side-by-side. Their returns, volatility, and drawdowns will appear here.</div>
+      <button class="empty-state-btn" data-goto-overview>→ Go to Overview</button>
+    </div>
+    <div class="card chart-container">
+      <div class="chart-header">
+        <span class="chart-title">Annualized Returns Comparison</span>
+        <div class="timeframe-btns">
+          <button class="timeframe-btn" data-years="1">1Y</button>
+          <button class="timeframe-btn" data-years="3">3Y</button>
+          <button class="timeframe-btn" data-years="5">5Y</button>
+          <button class="timeframe-btn active" data-years="10">10Y</button>
+        </div>
+      </div>
+      <canvas id="returnsChart" height="350"></canvas>
+    </div>
+    <div class="card chart-container">
+      <div class="chart-header">
+        <span class="chart-title">The Bumpy Ride: How Wide Is the Range?</span>
+      </div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;">
+        For any 12-month period during the selected timeframe, here's the best, worst, and average return each asset delivered. Wider bars mean wilder rides. The dot shows the average.
+      </p>
+      <canvas id="volatilityChart" height="350"></canvas>
+    </div>
+    <div class="card chart-container">
+      <div class="chart-header">
+        <span class="chart-title">Maximum Drawdown (Worst Peak-to-Trough Decline)</span>
+      </div>
+      <canvas id="drawdownChart" height="300"></canvas>
+    </div>
+  </div>
+
+  <!-- TAB: DCA SIMULATOR -->
+  <div class="tab-content" id="tab-dca">
+    <div class="empty-state" id="dcaEmptyState" style="display:none;">
+      <div class="empty-state-icon">💸</div>
+      <div class="empty-state-title">Pick assets to simulate</div>
+      <div class="empty-state-desc">The DCA Simulator shows what your monthly investing would have produced if you'd been buying a specific asset all along. Head to the Overview tab and check the assets you want to simulate.</div>
+      <button class="empty-state-btn" data-goto-overview>→ Go to Overview</button>
+    </div>
+    <div class="card chart-container">
+      <h2>Dollar-Cost Averaging Simulator</h2>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:20px;">
+        What if you had invested <strong id="dcaBudgetDisplay">$500</strong>/month consistently? This tab shows what your actual monthly investing would have produced, as a visual journey and in exact dollar figures.
+      </p>
+      <div class="chart-header">
+        <span class="chart-title">DCA Growth Over Time</span>
+        <div class="timeframe-btns" id="dcaTimeframeBtns">
+          <button class="timeframe-btn dca-tf-btn" data-years="1">1Y</button>
+          <button class="timeframe-btn dca-tf-btn" data-years="3">3Y</button>
+          <button class="timeframe-btn dca-tf-btn" data-years="5">5Y</button>
+          <button class="timeframe-btn dca-tf-btn active" data-years="10">10Y</button>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:12px;" id="dcaChartSubtitle">
+        What <strong>$500</strong>/month invested consistently would have grown to. Each line&apos;s final value is labeled. <em>Y-axis uses log scale so high and moderate performers are both visible.</em>
+      </p>
+      <canvas id="dcaGrowthChart" height="400"></canvas>
+      <div id="dcaResults" style="margin-top: 24px;"></div>
+    </div>
+  </div>
+
+  <!-- DISCLAIMER -->
+  <div class="disclaimer">
+    <strong>Important Disclaimer:</strong> This tool is for educational purposes only. It is not financial advice.
+    Past performance does not guarantee future results. All data shown is historical and should not be used as the sole basis
+    for investment decisions. The Catch-Up Fit Score is an educational metric, not a recommendation.
+    Always consult with a qualified financial professional before making investment decisions.
+    <br><br>
+    Built for The Great Catch-Up program by J. Scott MacMillan.
+  </div>
+
+</div>
+
+<script src="asset-data.js"></script>
+<script>
+// ============================================================
+// CATCH-UP ASSET COMPARISON DASHBOARD
+// ============================================================
+
+(function() {
+  'use strict';
+
+  // --- State ---
+  let _data = null;
+  let _settings = {
+    requiredReturn: 22,
+    timeline: 15,
+    monthlyBudget: 500,
+    activeTab: 'freedom',
+    compareTimeframe: 10,
+    customTickers: [],
+    selectedAssets: [],
+    // Freedom Number Builder state
+    fn: {
+      expMode: 'simple',
+      expMonthly: 6000,
+      expHousing: 2000,
+      expFood: 800,
+      expHealth: 1200,
+      expTransport: 500,
+      expTravel: 800,
+      expOther: 500,
+      expLifestyle: 0.80,
+      incSocSec: 1800,
+      incSkipSS: false,
+      incPension: 0,
+      incRental: 0,
+      incPartTime: 0,
+      wdRate: 0.04,
+      // Starting point
+      spSavings: 50000,
+      spMonthly: 500,
+      spYears: 15,
+      inflationRate: 3,
+      showInflation: false,
+      calculatedFN: 0,
+      calculatedRR: 0
+    }
+  };
+  let _assetMetrics = {};
+  let _activeAssets = [];
+  let _debounceTimer = null;
+  let _categoryFilter = 'all';
+  let _expandedAssets = new Set();
+
+  // --- Data Loading ---
+  function loadData() {
+    if (window.ASSET_DATA) {
+      _data = window.ASSET_DATA;
+    } else {
+      // Fallback: fetch JSON
+      fetch('asset-data.json')
+        .then(r => r.json())
+        .then(d => { _data = d; init(); })
+        .catch(e => console.error('Failed to load asset data:', e));
+      return;
+    }
+    init();
+  }
+
+  function init() {
+    loadCachedAssets();
+    loadSettings();
+    populateFNInputs();
+    computeAllMetrics();
+    renderAll();
+    bindEvents();
+    renderFreedomNumber();
+  }
+
+  // --- Settings (localStorage) ---
+  function loadSettings() {
+    try {
+      const saved = localStorage.getItem('catchup-freedom-path-settings');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        Object.assign(_settings, parsed);
+      }
+    } catch(e) {}
+
+    // Determine active assets: defaults + any custom
+    _activeAssets = Object.keys(_data.assets);
+    if (_settings.customTickers && _settings.customTickers.length) {
+      _settings.customTickers.forEach(t => {
+        if (_data.assets[t] && !_activeAssets.includes(t)) {
+          _activeAssets.push(t);
+        }
+      });
+    }
+
+  }
+
+  function saveSettings() {
+    try {
+      _settings._savedAt = new Date().toISOString();
+      localStorage.setItem('catchup-freedom-path-settings', JSON.stringify(_settings));
+    } catch(e) {}
+  }
+
+  // --- Export / Import / Reset ---
+  function showToast(message, kind) {
+    const t = document.getElementById('toast');
+    if (!t) return;
+    t.textContent = message;
+    t.className = 'toast show ' + (kind || '');
+    clearTimeout(t._timer);
+    t._timer = setTimeout(() => { t.className = 'toast ' + (kind || ''); }, 3000);
+  }
+
+  function exportSettings() {
+    try {
+      const payload = {
+        _meta: {
+          app: 'catchup-freedom-path',
+          version: 1,
+          exportedAt: new Date().toISOString()
+        },
+        settings: _settings
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const ts = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = 'freedom-path-data-' + ts + '.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 500);
+      showToast('Settings exported. Save this file to back up or move to another device.', 'success');
+    } catch (e) {
+      showToast('Export failed: ' + e.message, 'error');
+    }
+  }
+
+  function importSettings(file) {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const parsed = JSON.parse(ev.target.result);
+        // Accept either the wrapped payload {settings:{...}} or a bare settings object
+        const incoming = (parsed && parsed.settings) ? parsed.settings : parsed;
+        if (!incoming || typeof incoming !== 'object' || (!incoming.fn && incoming.requiredReturn === undefined)) {
+          throw new Error('This does not look like a Catch-Up settings file.');
+        }
+        if (!confirm('Replace your current data with this file?\n\nYour current data will be overwritten and cannot be recovered unless you exported it first.')) {
+          return;
+        }
+        // Merge incoming over defaults so missing keys keep working
+        Object.assign(_settings, incoming);
+        // Ensure nested fn object is fully populated
+        if (incoming.fn) Object.assign(_settings.fn, incoming.fn);
+        saveSettings();
+        // Re-run the same setup as page load
+        _activeAssets = Object.keys(_data.assets);
+        if (_settings.customTickers && _settings.customTickers.length) {
+          _settings.customTickers.forEach(t => {
+            if (_data.assets[t] && !_activeAssets.includes(t)) _activeAssets.push(t);
+          });
+        }
+        populateFNInputs();
+        computeAllMetrics();
+        renderAll();
+        renderFreedomNumber();
+        // Restore active tab
+        const activeTab = _settings.activeTab || 'freedom';
+        const tabBtn = document.querySelector('.tab-btn[data-tab="' + activeTab + '"]');
+        if (tabBtn) tabBtn.click();
+        showToast('Settings imported successfully.', 'success');
+      } catch (e) {
+        showToast('Import failed: ' + e.message, 'error');
+      }
+    };
+    reader.onerror = () => showToast('Could not read that file.', 'error');
+    reader.readAsText(file);
+  }
+
+  function resetSettings() {
+    if (!confirm('Erase all your data and start fresh?\n\nThis cannot be undone. If you want to save your data first, click Cancel and use Export.')) {
+      return;
+    }
+    try {
+      localStorage.removeItem('catchup-freedom-path-settings');
+      showToast('Data cleared. Reloading...', 'success');
+      setTimeout(() => window.location.reload(), 600);
+    } catch (e) {
+      showToast('Reset failed: ' + e.message, 'error');
+    }
+  }
+
+  // --- Freedom Number Builder ---
+  function populateFNInputs() {
+    const fn = _settings.fn;
+    document.getElementById('expMonthly').value = fn.expMonthly;
+    document.getElementById('expHousing').value = fn.expHousing;
+    document.getElementById('expFood').value = fn.expFood;
+    document.getElementById('expHealth').value = fn.expHealth;
+    document.getElementById('expTransport').value = fn.expTransport;
+    document.getElementById('expTravel').value = fn.expTravel;
+    document.getElementById('expOther').value = fn.expOther;
+    document.getElementById('expLifestyle').value = fn.expLifestyle.toFixed(2);
+    document.getElementById('incSocSec').value = fn.incSocSec;
+    document.getElementById('incSkipSS').checked = fn.incSkipSS;
+    document.getElementById('incPension').value = fn.incPension;
+    document.getElementById('incRental').value = fn.incRental;
+    document.getElementById('incPartTime').value = fn.incPartTime;
+    document.getElementById('wdRate').value = fn.wdRate.toFixed(2);
+    document.getElementById('spSavings').value = fn.spSavings;
+    document.getElementById('spMonthly').value = fn.spMonthly;
+    document.getElementById('spYears').value = fn.spYears;
+    const inflSliderEl = document.getElementById('inflationSlider');
+    const inflValEl = document.getElementById('inflationValue');
+    const safeInfl = (typeof fn.inflationRate === 'number' && !isNaN(fn.inflationRate)) ? fn.inflationRate : 3;
+    if (inflSliderEl) inflSliderEl.value = safeInfl;
+    if (inflValEl) inflValEl.textContent = safeInfl + '%';
+
+    // Apply mode toggle
+    if (fn.expMode === 'detailed') {
+      document.getElementById('expToggleSimple').classList.remove('active');
+      document.getElementById('expToggleDetailed').classList.add('active');
+      document.getElementById('expSimpleMode').style.display = 'none';
+      document.getElementById('expDetailedMode').style.display = 'block';
+    }
+  }
+
+  function calcFreedomNumber() {
+    const fn = _settings.fn;
+
+    // Calculate monthly expenses based on mode
+    let monthlyExpenses;
+    if (fn.expMode === 'detailed') {
+      monthlyExpenses = (fn.expHousing || 0) + (fn.expFood || 0) + (fn.expHealth || 0)
+        + (fn.expTransport || 0) + (fn.expTravel || 0) + (fn.expOther || 0);
+    } else {
+      monthlyExpenses = fn.expMonthly || 0;
+    }
+
+    // Apply lifestyle factor
+    const adjustedMonthly = monthlyExpenses * (fn.expLifestyle || 1);
+    const annualExpenses = adjustedMonthly * 12;
+
+    // Sum guaranteed income (zero out SS if skipping)
+    const monthlySS = fn.incSkipSS ? 0 : (fn.incSocSec || 0);
+    const monthlyIncome = monthlySS + (fn.incPension || 0) + (fn.incRental || 0) + (fn.incPartTime || 0);
+    const annualIncome = monthlyIncome * 12;
+
+    // Gap that savings must cover
+    const annualGap = Math.max(0, annualExpenses - annualIncome);
+
+    // Freedom Number = gap / withdrawal rate
+    const freedomNumber = annualGap / (fn.wdRate || 0.04);
+
+    return {
+      monthlyExpenses,
+      adjustedMonthly,
+      annualExpenses,
+      monthlySS,
+      monthlyIncome,
+      annualIncome,
+      annualGap,
+      freedomNumber
+    };
+  }
+
+  function calcRequiredReturnFromFN(freedomNumber, startingBalance, monthlyBudget, years) {
+    if (freedomNumber <= 0 || years <= 0) return 0;
+    if (startingBalance >= freedomNumber) return 0; // already there
+    if (monthlyBudget <= 0 && startingBalance <= 0) return 1; // impossible, max out
+
+    // Binary search for required annual return
+    let low = 0, high = 1; // 0% to 100%
+    for (let i = 0; i < 60; i++) {
+      const mid = (low + high) / 2;
+      let balance = startingBalance;
+      const annual = monthlyBudget * 12;
+      for (let y = 0; y < years; y++) {
+        balance = balance + annual + (balance + annual) * mid;
+      }
+      if (Math.abs(balance - freedomNumber) / freedomNumber < 0.001) {
+        return mid;
+      }
+      if (balance < freedomNumber) low = mid;
+      else high = mid;
+    }
+    return (low + high) / 2;
+  }
+
+  function renderFreedomNumber() {
+    const result = calcFreedomNumber();
+    _settings.fn.calculatedFN = result.freedomNumber;
+
+    // Inflation-adjusted future target
+    const _fnLocal = _settings.fn;
+    const inflPct = (typeof _fnLocal.inflationRate === 'number' && !isNaN(_fnLocal.inflationRate)) ? _fnLocal.inflationRate : 3;
+    const years = _fnLocal.spYears || 0;
+    const inflFactor = Math.pow(1 + inflPct / 100, years);
+    const freedomNumberFuture = result.freedomNumber * inflFactor;
+
+    const valueEl = document.getElementById('fnValue');
+    const headlineLabelEl = document.getElementById('fnHeadlineLabel');
+    const todayRefEl = document.getElementById('fnTodayRef');
+    const breakdownEl = document.getElementById('fnBreakdown');
+    const mathEl = document.getElementById('fnMath');
+
+    if (!valueEl) return;
+
+    // Headline depends on whether user has opted into inflation view
+    const showInflation = !!_settings.fn.showInflation && result.freedomNumber > 0 && inflPct >= 0 && years > 0;
+    const panelEl = document.getElementById('fnResultPanel');
+    if (panelEl) panelEl.classList.toggle('hide-inflation', !showInflation);
+
+    if (showInflation) {
+      valueEl.textContent = '$' + freedomNumberFuture.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      if (headlineLabelEl) headlineLabelEl.textContent = 'Your Freedom Number in ' + years + ' year' + (years !== 1 ? 's' : '') + ' (at ' + inflPct + '% inflation)';
+      if (todayRefEl) {
+        todayRefEl.textContent = '≈ $' + result.freedomNumber.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' in today\'s purchasing power';
+        todayRefEl.style.display = 'block';
+      }
+    } else {
+      valueEl.textContent = '$' + result.freedomNumber.toLocaleString(undefined, { maximumFractionDigits: 0 });
+      if (headlineLabelEl) headlineLabelEl.textContent = 'Your Freedom Number';
+      if (todayRefEl) todayRefEl.style.display = 'none';
+    }
+
+    // Toggle button label
+    const togBtn = document.getElementById('inflationToggleBtn');
+    const togTxt = document.getElementById('inflationToggleText');
+    if (togBtn && togTxt) {
+      if (_settings.fn.showInflation) {
+        togBtn.classList.add('active');
+        togTxt.textContent = 'Hide Inflation Impact';
+      } else {
+        togBtn.classList.remove('active');
+        togTxt.textContent = 'Show Inflation Impact →';
+      }
+    }
+
+    // Update the "Total Monthly" display in detailed mode
+    const totalEl = document.getElementById('expDetailedTotalValue');
+    if (totalEl) {
+      totalEl.textContent = '$' + result.monthlyExpenses.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    }
+
+    const wdRatePct = (_settings.fn.wdRate * 100).toFixed(0);
+    if (result.freedomNumber === 0) {
+      breakdownEl.innerHTML = 'Your guaranteed income covers your expenses. You technically don\'t need savings to retire, though a cushion is always smart.';
+    } else {
+      breakdownEl.innerHTML = `Based on <strong>$${result.annualExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}/year</strong> in retirement expenses, <strong>$${result.annualIncome.toLocaleString(undefined, {maximumFractionDigits: 0})}/year</strong> in guaranteed income, and a <strong>${wdRatePct}% withdrawal rate</strong>.`;
+    }
+
+    // Update math breakdown
+    mathEl.innerHTML = `
+      <div class="fn-math-row"><span>Current monthly expenses</span><span>$${result.monthlyExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+      <div class="fn-math-row"><span>× Retirement adjustment</span><span>× ${(_settings.fn.expLifestyle * 100).toFixed(0)}%</span></div>
+      <div class="fn-math-row"><span>Projected retirement monthly</span><span>$${result.adjustedMonthly.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+      <div class="fn-math-row"><span>× 12 = Annual retirement expenses</span><span>$${result.annualExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+      <div class="fn-math-row"><span style="color:var(--green)">- Annual guaranteed income</span><span style="color:var(--green)">-$${result.annualIncome.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+      <div class="fn-math-row"><span>Annual gap (what savings must cover)</span><span>$${result.annualGap.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+      <div class="fn-math-row"><span>÷ Withdrawal rate</span><span>÷ ${wdRatePct}%</span></div>
+      <div class="fn-math-row fn-math-total"><span>= Freedom Number${showInflation ? ' (today)' : ''}</span><span>$${result.freedomNumber.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
+      ${showInflation ? `
+      <div class="fn-math-row"><span>x Inflation over ${years}y at ${inflPct}%</span><span>x ${inflFactor.toFixed(2)}</span></div>
+      <div class="fn-math-row fn-math-total"><span>= Freedom Number (future dollars)</span><span>$${freedomNumberFuture.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>` : ''}
+    `;
+
+    // Required return targets future-nominal only when user opted into inflation view
+    const fn = _settings.fn;
+    const targetFN = showInflation ? freedomNumberFuture : result.freedomNumber;
+    const rrDecimal = calcRequiredReturnFromFN(
+      targetFN,
+      fn.spSavings,
+      fn.spMonthly,
+      fn.spYears
+    );
+    const rrPct = Math.round(rrDecimal * 100);
+    _settings.fn.calculatedRR = rrPct;
+    const realReturnPct = Math.max(0, rrPct - inflPct);
+
+    // Section 3 inline display + co-headline in result panel
+    const rrEl = document.getElementById('spRequiredReturn');
+    const rrHintEl = document.getElementById('spRequiredReturnHint');
+    const rrBigEl = document.getElementById('rrHeadlineValue');
+    const rrBigRealEl = document.getElementById('rrHeadlineReal');
+    const rrBigZoneEl = document.getElementById('rrHeadlineZone');
+    const rrBigHintEl = document.getElementById('rrHeadlineHint');
+
+    function setRR(text, color, realStr, zoneLabel, hintHtml, zoneClass) {
+      if (rrEl) { rrEl.textContent = text; rrEl.style.color = color; }
+      if (rrHintEl) rrHintEl.innerHTML = hintHtml;
+      if (rrBigEl) {
+        rrBigEl.textContent = text;
+        rrBigEl.className = 'rr-headline-value' + (zoneClass ? ' ' + zoneClass : '');
+      }
+      if (rrBigRealEl) rrBigRealEl.textContent = realStr || '';
+      if (rrBigZoneEl) {
+        rrBigZoneEl.textContent = zoneLabel || '';
+        rrBigZoneEl.className = 'rr-headline-zone' + (zoneClass ? ' ' + zoneClass : '');
+      }
+      if (rrBigHintEl) rrBigHintEl.innerHTML = hintHtml;
+    }
+
+    // Asset-class tier mapping. Each tier is a signpost to which kind of
+    // asset historically could have delivered that return, NOT an alarm.
+    function getRRTier(pct) {
+      if (pct <= 12) return {
+        zoneClass: 'index-zone',
+        zoneLabel: 'Index-fund territory',
+        color: 'var(--blue)',
+        action: 'A broad S&P 500 or total-market index fund has historically delivered returns in this range. See the Overview and Compare tabs.'
+      };
+      if (pct <= 22) return {
+        zoneClass: 'growth-zone',
+        zoneLabel: 'Growth-stock territory',
+        color: 'var(--accent)',
+        action: 'Traditional indexes alone are unlikely to reach this. Historically this required tilting toward growth-stock ETFs like QQQ or concentrated bets on tech leaders. See the Overview tab.'
+      };
+      return {
+        zoneClass: 'concentrated-zone',
+        zoneLabel: 'Bitcoin / concentrated bet territory',
+        color: '#fb923c',
+        action: 'Historically only assets like Bitcoin or concentrated positions in mega-winners like NVDA have delivered returns this high. Open the Overview tab to see which assets cleared this bar.'
+      };
+    }
+
+    if (result.freedomNumber === 0) {
+      setRR('...', 'var(--accent)', '', '', 'Enter your numbers above to see your required return.', null);
+    } else if (fn.spSavings >= targetFN) {
+      setRR('0%', 'var(--green)', '', 'Already there',
+        `You already have <strong>${'$' + fn.spSavings.toLocaleString()}</strong> saved, which meets your Freedom Number of <strong>$${targetFN.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>.`,
+        'index-zone');
+    } else if (rrPct >= 100) {
+      setRR('100%+', '#fb923c', '', 'Out of range',
+        `No realistic asset delivers this. Consider more years, higher monthly investment${showInflation ? ', lower inflation assumption' : ''}, or a lower Freedom Number target.`,
+        'concentrated-zone');
+    } else {
+      const tier = getRRTier(rrPct);
+      const realStr = showInflation ? '(' + realReturnPct + '% after inflation)' : '';
+      const hint = showInflation
+        ? `Starting with <strong>$${fn.spSavings.toLocaleString()}</strong> and adding <strong>$${fn.spMonthly.toLocaleString()}/mo</strong> for <strong>${fn.spYears} years</strong>, you need <strong>${rrPct}%</strong> annually to reach <strong>$${targetFN.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>. That is <strong>${realReturnPct}% after-inflation growth</strong> in your real buying power. ${tier.action}`
+        : `Starting with <strong>$${fn.spSavings.toLocaleString()}</strong> and adding <strong>$${fn.spMonthly.toLocaleString()}/mo</strong> for <strong>${fn.spYears} years</strong>, you need <strong>${rrPct}%</strong> annually to reach <strong>$${targetFN.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>. ${tier.action}`;
+      setRR(rrPct + '%', tier.color, realStr, tier.zoneLabel, hint, tier.zoneClass);
+    }
+  }
+
+  function onFNInput() {
+    // Read all inputs into _settings.fn
+    const fn = _settings.fn;
+    fn.expMonthly = parseFloat(document.getElementById('expMonthly').value) || 0;
+    fn.expHousing = parseFloat(document.getElementById('expHousing').value) || 0;
+    fn.expFood = parseFloat(document.getElementById('expFood').value) || 0;
+    fn.expHealth = parseFloat(document.getElementById('expHealth').value) || 0;
+    fn.expTransport = parseFloat(document.getElementById('expTransport').value) || 0;
+    fn.expTravel = parseFloat(document.getElementById('expTravel').value) || 0;
+    fn.expOther = parseFloat(document.getElementById('expOther').value) || 0;
+    fn.expLifestyle = parseFloat(document.getElementById('expLifestyle').value) || 1;
+    fn.incSocSec = parseFloat(document.getElementById('incSocSec').value) || 0;
+    fn.incSkipSS = document.getElementById('incSkipSS').checked;
+    fn.incPension = parseFloat(document.getElementById('incPension').value) || 0;
+    fn.incRental = parseFloat(document.getElementById('incRental').value) || 0;
+    fn.incPartTime = parseFloat(document.getElementById('incPartTime').value) || 0;
+    fn.wdRate = parseFloat(document.getElementById('wdRate').value) || 0.04;
+    fn.spSavings = parseFloat(document.getElementById('spSavings').value) || 0;
+    fn.spMonthly = parseFloat(document.getElementById('spMonthly').value) || 0;
+    fn.spYears = parseInt(document.getElementById('spYears').value) || 1;
+
+    renderFreedomNumber();
+    debounceSave();
+  }
+
+  function useFreedomNumberInPlan() {
+    const fn = _settings.fn;
+    if (fn.calculatedFN <= 0) {
+      alert('Calculate your Freedom Number first by filling in the expense and income fields.');
+      return;
+    }
+
+    // Push the Section 3 values and computed Required Return into the main settings
+    _settings.requiredReturn = fn.calculatedRR || 15;
+    _settings.timeline = fn.spYears || 15;
+    _settings.monthlyBudget = fn.spMonthly || 500;
+
+    computeAllMetrics();
+    renderAll();
+    debounceSave();
+
+    // Switch to Overview tab
+    const btn = document.querySelector('.tab-btn[data-tab="overview"]');
+    if (btn) btn.click();
+  }
+
+  // --- Financial Calculations ---
+  function calcAnnualizedReturn(prices, years) {
+    if (!prices || prices.length < 2) return null;
+    const months = years * 12;
+    const startIdx = Math.max(0, prices.length - months - 1);
+    const endIdx = prices.length - 1;
+    if (startIdx >= endIdx) return null;
+    const startPrice = prices[startIdx].close;
+    const endPrice = prices[endIdx].close;
+    if (startPrice <= 0) return null;
+    const actualYears = (endIdx - startIdx) / 12;
+    return (Math.pow(endPrice / startPrice, 1 / actualYears) - 1) * 100;
+  }
+
+  // Returns { date: 'Apr 2021', years: 5.0, truncated: false } describing
+  // the start of the window actually used for the N-year CAGR.
+  // truncated=true means the asset has less than N years of history.
+  function getReturnWindow(prices, years) {
+    if (!prices || prices.length < 2) return null;
+    const months = years * 12;
+    const startIdx = Math.max(0, prices.length - months - 1);
+    const endIdx = prices.length - 1;
+    if (startIdx >= endIdx) return null;
+    const actualYears = (endIdx - startIdx) / 12;
+    const truncated = actualYears < years - 0.05;
+    const dateStr = prices[startIdx].date; // 'YYYY-MM-DD'
+    const months3 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const parts = dateStr.split('-');
+    const label = months3[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+    return { date: label, years: actualYears, truncated };
+  }
+
+  // Downside deviation: std-dev of NEGATIVE annual returns only.
+  // Captures "risk that hurts" without penalizing upside volatility.
+  // This is what the Sortino ratio uses instead of full standard deviation.
+  function calcDownsideDeviation(prices) {
+    if (!prices || prices.length < 24) return null;
+    const annualReturns = [];
+    for (let i = 12; i < prices.length; i += 12) {
+      const ret = (prices[i].close / prices[i - 12].close - 1) * 100;
+      annualReturns.push(ret);
+    }
+    if (annualReturns.length < 2) return null;
+    // Measure deviation from 0% (negative returns only)
+    const downsideSqSum = annualReturns.reduce((acc, r) => acc + (r < 0 ? r * r : 0), 0);
+    return Math.sqrt(downsideSqSum / annualReturns.length);
+  }
+
+  function calcVolatility(prices) {
+    if (!prices || prices.length < 24) return null;
+    // Calculate annual returns for each 12-month period
+    const annualReturns = [];
+    for (let i = 12; i < prices.length; i += 12) {
+      const ret = (prices[i].close / prices[i - 12].close - 1) * 100;
+      annualReturns.push(ret);
+    }
+    if (annualReturns.length < 2) return null;
+    const mean = annualReturns.reduce((a, b) => a + b, 0) / annualReturns.length;
+    const variance = annualReturns.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (annualReturns.length - 1);
+    return Math.sqrt(variance);
+  }
+
+  function calcMaxDrawdown(prices) {
+    if (!prices || prices.length < 2) return { drawdown: 0, peakDate: '', troughDate: '', recoveryMonths: null };
+    let peak = prices[0].close;
+    let peakDate = prices[0].date;
+    let maxDD = 0;
+    let ddPeakDate = '';
+    let ddTroughDate = '';
+    let troughIdx = 0;
+
+    for (let i = 1; i < prices.length; i++) {
+      if (prices[i].close > peak) {
+        peak = prices[i].close;
+        peakDate = prices[i].date;
+      }
+      const dd = (prices[i].close - peak) / peak;
+      if (dd < maxDD) {
+        maxDD = dd;
+        ddPeakDate = peakDate;
+        ddTroughDate = prices[i].date;
+        troughIdx = i;
+      }
+    }
+
+    // Find recovery
+    let recoveryMonths = null;
+    const peakAtDrawdown = peak;
+    for (let i = troughIdx + 1; i < prices.length; i++) {
+      if (prices[i].close >= peakAtDrawdown) {
+        recoveryMonths = i - troughIdx;
+        break;
+      }
+    }
+
+    return {
+      drawdown: maxDD * 100,
+      peakDate: ddPeakDate,
+      troughDate: ddTroughDate,
+      recoveryMonths: recoveryMonths
+    };
+  }
+
+  function calcBestWorstYear(prices) {
+    if (!prices || prices.length < 13) return { best: null, worst: null };
+    const yearReturns = [];
+    for (let i = 12; i < prices.length; i += 12) {
+      const end = Math.min(i + 11, prices.length - 1);
+      const ret = (prices[i].close / prices[i - 12].close - 1) * 100;
+      const year = prices[i].date.substring(0, 4);
+      yearReturns.push({ year, ret });
+    }
+    // Also calculate partial rolling years
+    for (let i = 12; i < prices.length; i++) {
+      const ret = (prices[i].close / prices[i - 12].close - 1) * 100;
+      const year = prices[i].date.substring(0, 7);
+      yearReturns.push({ year, ret });
+    }
+    if (yearReturns.length === 0) return { best: null, worst: null };
+    yearReturns.sort((a, b) => b.ret - a.ret);
+    return {
+      best: yearReturns[0],
+      worst: yearReturns[yearReturns.length - 1]
+    };
+  }
+
+  // Strip leading entries with invalid prices (zeros, nulls, NaN). Some
+  // assets' price histories have phantom rows from before the asset existed
+  // (e.g. SUI's monthlyPrices include 2022 entries with close=0). Dividing
+  // the DCA budget by zero would produce Infinity → NaN and poison every
+  // downstream calculation.
+  function sliceValidPrices(prices, months) {
+    if (!prices || !prices.length) return [];
+    const want = Math.max(0, prices.length - months);
+    let startIdx = want;
+    while (startIdx < prices.length && (!prices[startIdx].close || prices[startIdx].close <= 0 || !isFinite(prices[startIdx].close))) {
+      startIdx++;
+    }
+    return prices.slice(startIdx).filter(p => p.close > 0 && isFinite(p.close));
+  }
+
+  function calcDCA(prices, monthlyAmount, months) {
+    if (!prices || prices.length < 2) return null;
+    const valid = sliceValidPrices(prices, months);
+    if (valid.length < 2) return null;
+    let totalUnits = 0;
+    let totalInvested = 0;
+    const actualMonths = valid.length;
+
+    for (let i = 0; i < valid.length; i++) {
+      totalUnits += monthlyAmount / valid[i].close;
+      totalInvested += monthlyAmount;
+    }
+
+    const endingValue = totalUnits * valid[valid.length - 1].close;
+    const totalGain = endingValue - totalInvested;
+    const gainPct = (totalGain / totalInvested) * 100;
+    const years = actualMonths / 12;
+    const annReturn = years > 0 ? (Math.pow(endingValue / totalInvested, 1 / years) - 1) * 100 : 0;
+
+    return {
+      totalInvested,
+      endingValue,
+      totalGain,
+      gainPct,
+      annualizedReturn: annReturn,
+      months: actualMonths
+    };
+  }
+
+  function calcCatchUpFitScore(avgReturn, volatility, requiredReturn, timeline) {
+    // Return Score (60%): How well does the return match what's needed?
+    // Assets that exceed the required return get bonus points (up to 120)
+    let returnScore;
+    if (avgReturn >= requiredReturn) {
+      returnScore = 100 + Math.min(20, (avgReturn - requiredReturn) / requiredReturn * 40);
+    } else {
+      returnScore = Math.max(0, (avgReturn / Math.max(requiredReturn, 1)) * 100);
+    }
+    returnScore = Math.min(120, returnScore);
+
+    // Volatility Score (25%): Penalize volatility, but less harshly for longer timelines
+    const timelineFactor = Math.min(1, timeline / 15);
+    const volPenalty = (volatility || 0) * (1 - timelineFactor * 0.6);
+    const volatilityScore = Math.max(0, 100 - volPenalty * 1.2);
+
+    // Consistency Score (15%): return-to-volatility ratio (reward efficient returns)
+    const consistencyScore = volatility > 0
+      ? Math.min(100, (avgReturn / volatility) * 60 + 40)
+      : avgReturn > 0 ? 80 : 20;
+
+    const score = returnScore * 0.6 + volatilityScore * 0.25 + consistencyScore * 0.15;
+    return Math.max(0, Math.min(100, score));
+  }
+
+  // Risk-Aware Catch-Up Fit Score (v2).
+  // Differences from v1:
+  //  - Replaces total volatility with DOWNSIDE deviation (rewards positive
+  //    skew like Bitcoin's instead of punishing upside swings)
+  //  - Replaces consistency-ratio with MAX DRAWDOWN scaled by timeline
+  //    severity (captures the real catch-up fear: "what if I'd need to
+  //    withdraw right after a crash")
+  function calcCatchUpFitScoreV2(avgReturn, downsideVol, maxDrawdownPct, requiredReturn, timeline) {
+    // Return Score (60%) — same as v1
+    let returnScore;
+    if (avgReturn >= requiredReturn) {
+      returnScore = 100 + Math.min(20, (avgReturn - requiredReturn) / requiredReturn * 40);
+    } else {
+      returnScore = Math.max(0, (avgReturn / Math.max(requiredReturn, 1)) * 100);
+    }
+    returnScore = Math.min(120, returnScore);
+
+    // Downside-Risk Score (25%) — punishes only the volatility that hurt
+    const timelineFactor = Math.min(1, timeline / 15);
+    const dv = downsideVol || 0;
+    const downsidePenalty = dv * (1 - timelineFactor * 0.6);
+    // 2.5x multiplier compensates for downside-vol being much smaller than total vol
+    const downsideScore = Math.max(0, 100 - downsidePenalty * 2.5);
+
+    // Drawdown Score (15%) — captures sequence-of-returns risk. Short
+    // timelines amplify the pain of a deep historical drawdown.
+    const dd = Math.abs(maxDrawdownPct || 0);
+    const timelineSeverity = timeline >= 15 ? 1.0 : timeline >= 10 ? 1.25 : timeline >= 5 ? 1.6 : 2.0;
+    const drawdownPenalty = dd * timelineSeverity * 0.7;
+    const drawdownScore = Math.max(0, 100 - drawdownPenalty);
+
+    const score = returnScore * 0.6 + downsideScore * 0.25 + drawdownScore * 0.15;
+    return Math.max(0, Math.min(100, score));
+  }
+
+  function getGrade(score) {
+    if (score >= 80) return { letter: 'A', class: 'grade-a', label: 'Strong Catch-Up Fit', color: 'var(--green)' };
+    if (score >= 60) return { letter: 'B', class: 'grade-b', label: 'Moderate Catch-Up Fit', color: 'var(--blue)' };
+    if (score >= 40) return { letter: 'C', class: 'grade-c', label: 'Possible Catch-Up Fit', color: 'var(--accent)' };
+    if (score >= 20) return { letter: 'D', class: 'grade-d', label: 'Weak Catch-Up Fit', color: 'var(--red)' };
+    return { letter: 'F', class: 'grade-f', label: 'Poor Catch-Up Fit', color: 'var(--muted)' };
+  }
+
+  function computeAllMetrics() {
+    _assetMetrics = {};
+    _activeAssets.forEach(key => {
+      const asset = _data.assets[key];
+      if (!asset) return;
+      const prices = asset.monthlyPrices;
+      const ret10 = calcAnnualizedReturn(prices, 10);
+      const ret5 = calcAnnualizedReturn(prices, 5);
+      const ret3 = calcAnnualizedReturn(prices, 3);
+      const ret1 = calcAnnualizedReturn(prices, 1);
+      const vol = calcVolatility(prices);
+      const downsideVol = calcDownsideDeviation(prices);
+      const dd = calcMaxDrawdown(prices);
+      const bw = calcBestWorstYear(prices);
+      const avgReturn = ret10 || ret5 || ret3 || 0;
+      const fitScore = calcCatchUpFitScore(avgReturn, vol || 0, _settings.requiredReturn, _settings.timeline);
+      const fitScoreV2 = calcCatchUpFitScoreV2(avgReturn, downsideVol || 0, dd.drawdown * 100, _settings.requiredReturn, _settings.timeline);
+
+      _assetMetrics[key] = {
+        currentPrice: prices[prices.length - 1].close,
+        priceDate: prices[prices.length - 1].date,
+        returns: { '1': ret1, '3': ret3, '5': ret5, '10': ret10 },
+        returnWindows: {
+          '1': getReturnWindow(prices, 1),
+          '3': getReturnWindow(prices, 3),
+          '5': getReturnWindow(prices, 5),
+          '10': getReturnWindow(prices, 10)
+        },
+        volatility: vol,
+        downsideVolatility: downsideVol,
+        maxDrawdown: dd,
+        bestWorst: bw,
+        avgReturn,
+        fitScore,
+        grade: getGrade(fitScore),
+        fitScoreV2,
+        gradeV2: getGrade(fitScoreV2)
+      };
+    });
+  }
+
+  // --- Rendering ---
+  function renderAll() {
+    renderHeader();
+    renderPlanSummary();
+    renderAssetCards();
+    // Only render charts if their tab is visible (canvas needs dimensions)
+    if (_settings.activeTab === 'compare') {
+      setTimeout(renderCompareCharts, 100);
+    } else if (_settings.activeTab === 'dca') {
+      setTimeout(renderDCAGrowthChart, 100);
+    }
+    renderDCA();
+  }
+
+  function renderHeader() {
+    document.getElementById('dataDate').textContent = 'Data as of: ' + (_data.lastUpdated || 'Unknown');
+    renderStaleBanner();
+  }
+
+  // Show a warning if the asset data file is older than 14 days. Most likely
+  // means the weekly GitHub Action that refreshes prices has stopped working
+  // (Yahoo ticker changed, network failure, etc.). Surfacing this in the UI
+  // means we don't have to remember to check the Actions tab.
+  function renderStaleBanner() {
+    const banner = document.getElementById('staleBanner');
+    if (!banner) return;
+    const last = _data.lastUpdated;
+    if (!last) { banner.style.display = 'none'; return; }
+    const lastMs = Date.parse(last);
+    if (isNaN(lastMs)) { banner.style.display = 'none'; return; }
+    const ageDays = Math.floor((Date.now() - lastMs) / (1000 * 60 * 60 * 24));
+    if (ageDays < 14) { banner.style.display = 'none'; return; }
+    const severe = ageDays >= 30;
+    banner.className = 'stale-banner' + (severe ? ' severe' : '');
+    banner.innerHTML =
+      (severe ? '🚨 ' : '⚠️ ') +
+      '<strong>Asset data is ' + ageDays + ' days old.</strong> ' +
+      'The automatic weekly refresh may have failed. ' +
+      'Check the <a href="https://github.com/jscott-62/catchup-freedom-path/actions" target="_blank" rel="noopener">workflow status</a> or run the refresh manually. Returns shown below reflect prices as of ' + last + '.';
+    banner.style.display = 'block';
+  }
+
+  function renderPlanSummary() {
+    const bar = document.getElementById('planSummary');
+    const text = document.getElementById('planSummaryText');
+    if (!bar || !text) return;
+
+    // Show on every tab except the Freedom Number tab
+    if (_settings.activeTab === 'freedom') {
+      bar.classList.remove('show');
+      return;
+    }
+    bar.classList.add('show');
+
+    const fn = _settings.fn || {};
+    if (fn.calculatedFN > 0) {
+      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong> to reach <strong>$${fn.calculatedFN.toLocaleString()}</strong>.`;
+    } else {
+      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong>.`;
+    }
+  }
+
+  function renderAssetCards() {
+    const grid = document.getElementById('assetGrid');
+    grid.innerHTML = '';
+
+    // Update filter button counts
+    const cryptoCount = _activeAssets.filter(k => _data.assets[k] && _data.assets[k].category === 'Cryptocurrency').length;
+    const tradCount = _activeAssets.filter(k => _data.assets[k] && _data.assets[k].category !== 'Cryptocurrency').length;
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      const cat = btn.dataset.category;
+      if (cat === 'all') btn.innerHTML = 'All <span class="count">(' + _activeAssets.length + ')</span>';
+      if (cat === 'Cryptocurrency') btn.innerHTML = 'Crypto <span class="count">(' + cryptoCount + ')</span>';
+      if (cat === 'traditional') btn.innerHTML = 'Stocks & ETFs <span class="count">(' + tradCount + ')</span>';
+    });
+
+    _activeAssets.forEach(key => {
+      const asset = _data.assets[key];
+      const m = _assetMetrics[key];
+      if (!asset || !m) return;
+
+      // Apply category filter
+      if (_categoryFilter === 'Cryptocurrency' && asset.category !== 'Cryptocurrency') return;
+      if (_categoryFilter === 'traditional' && asset.category === 'Cryptocurrency') return;
+
+      const row = document.createElement('div');
+      const isSelected = _settings.selectedAssets.includes(key);
+      const isExpanded = _expandedAssets.has(key);
+      row.className = 'asset-row' + (isSelected ? ' selected' : '') + (isExpanded ? ' expanded' : '');
+      row.dataset.asset = key;
+
+      const catColors = {
+        'Cryptocurrency': 'var(--accent)',
+        'Commodity': '#eab308',
+        'Index Fund': 'var(--blue)',
+        'Tech Index': 'var(--purple)',
+        'Disruptive Tech ETF': 'var(--green)',
+        'Individual Stock': 'var(--red)',
+        'Bitcoin Treasury': '#f97316',
+        'Bitcoin ETF': '#fb923c',
+        'Custom': 'var(--cyan)'
+      };
+      const catColor = catColors[asset.category] || 'var(--muted)';
+      const fiveYr = m.returns['5'];
+      const fiveYrHtml = fiveYr !== null && fiveYr !== undefined
+        ? '<span class="' + (fiveYr >= 0 ? 'positive' : 'negative') + '">' + (fiveYr >= 0 ? '+' : '') + fiveYr.toFixed(1) + '%</span>'
+        : '<span style="color:var(--muted)">N/A</span>';
+      const fiveYrWin = m.returnWindows && m.returnWindows['5'];
+      const fiveYrTooltip = fiveYrWin
+        ? '5-Year annualized return — since ' + fiveYrWin.date + (fiveYrWin.truncated ? ' (only ' + fiveYrWin.years.toFixed(1) + ' years of data)' : '')
+        : '5-Year annualized return';
+      const sinceLabel = (yrs) => {
+        const w = m.returnWindows && m.returnWindows[String(yrs)];
+        if (!w) return '';
+        const suffix = w.truncated ? ' (only ' + w.years.toFixed(1) + 'y)' : '';
+        return ' <span class="metric-since">since ' + w.date + suffix + '</span>';
+      };
+
+      row.innerHTML = `
+        <div class="asset-row-summary">
+          <input type="checkbox" class="asset-checkbox" data-asset="${key}" ${isSelected ? 'checked' : ''} title="Select for comparison">
+          <div class="asset-row-name">
+            <div class="name" style="color:${asset.color}">${asset.name}</div>
+            <div class="ticker">${asset.ticker}</div>
+          </div>
+          <span class="asset-row-category" style="background:${catColor}20;color:${catColor}">${asset.category}</span>
+          <div class="asset-row-price">$${formatNum(m.currentPrice)}</div>
+          <div class="asset-row-return asset-row-return-col" title="${fiveYrTooltip}">${fiveYrHtml}</div>
+          <div class="asset-row-grade ${m.grade.class}" title="Catch-Up Fit Score">${m.grade.letter}</div>
+          <span class="asset-row-chevron">▶</span>
+        </div>
+        <div class="asset-row-details">
+          <div class="asset-price-large">$${formatNum(m.currentPrice)}</div>
+          <div class="asset-price-date">as of ${m.priceDate}</div>
+          <table class="metrics-table">
+            <tr><th>Metric</th><th style="text-align:right">Value</th></tr>
+            <tr><td>1-Year Return${sinceLabel(1)}</td><td>${fmtReturn(m.returns['1'])}</td></tr>
+            <tr><td>3-Year Return (ann.)${sinceLabel(3)}</td><td>${fmtReturn(m.returns['3'])}</td></tr>
+            <tr><td>5-Year Return (ann.)${sinceLabel(5)}</td><td>${fmtReturn(m.returns['5'])}</td></tr>
+            <tr><td>10-Year Return (ann.)${sinceLabel(10)}</td><td>${fmtReturn(m.returns['10'])}</td></tr>
+            <tr><td>Volatility (Std Dev)</td><td>${m.volatility !== null ? m.volatility.toFixed(1) + '%' : 'N/A'}</td></tr>
+            <tr><td>Max Drawdown</td><td class="negative">${m.maxDrawdown.drawdown.toFixed(1)}%</td></tr>
+            <tr><td>Recovery Time</td><td>${m.maxDrawdown.recoveryMonths !== null ? m.maxDrawdown.recoveryMonths + ' months' : 'Not recovered'}</td></tr>
+            <tr><td>Best 12-Month</td><td>${m.bestWorst.best ? '<span class="positive">+' + m.bestWorst.best.ret.toFixed(1) + '%</span>' : 'N/A'}</td></tr>
+            <tr><td>Worst 12-Month</td><td>${m.bestWorst.worst ? '<span class="negative">' + m.bestWorst.worst.ret.toFixed(1) + '%</span>' : 'N/A'}</td></tr>
+          </table>
+          <div class="fit-score-compare">
+            <div class="fit-score-container">
+              <div class="fit-score-header">
+                <span class="fit-score-label">Standard Fit Score (v1)</span>
+                <div class="fit-score-grade ${m.grade.class}">${m.grade.letter}</div>
+              </div>
+              <div class="fit-score-bar">
+                <div class="fit-score-fill" style="width:${m.fitScore}%;background:${m.grade.color}"></div>
+              </div>
+              <div class="fit-score-summary" style="font-size:12px;">
+                Uses <strong>total volatility</strong>. Penalizes upside swings the same as downside.
+              </div>
+            </div>
+            <div class="fit-score-container">
+              <div class="fit-score-header">
+                <span class="fit-score-label">Risk-Aware Fit Score (v2)</span>
+                <div class="fit-score-grade ${m.gradeV2.class}">${m.gradeV2.letter}</div>
+              </div>
+              <div class="fit-score-bar">
+                <div class="fit-score-fill" style="width:${m.fitScoreV2}%;background:${m.gradeV2.color}"></div>
+              </div>
+              <div class="fit-score-summary" style="font-size:12px;">
+                Uses <strong>downside-only volatility</strong> (${m.downsideVolatility !== null ? m.downsideVolatility.toFixed(0) + '%' : 'n/a'})
+                and <strong>max drawdown</strong> (${m.maxDrawdown.drawdown.toFixed(0)}%) scaled by your ${_settings.timeline}-year timeline.
+              </div>
+            </div>
+          </div>
+          <div class="fit-score-summary" style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border);">
+            ${asset.name} has averaged <strong>${m.avgReturn.toFixed(1)}%</strong> annually (your required return: <strong>${_settings.requiredReturn}%</strong>).
+            ${m.gradeV2.letter !== m.grade.letter ? '<br><em>Note: The two scores disagree (' + m.grade.letter + ' vs ' + m.gradeV2.letter + '). v2 rewards positive-skew assets that v1 over-penalizes for upside swings.</em>' : ''}
+          </div>
+        </div>
+      `;
+      grid.appendChild(row);
+    });
+
+    // Bind checkbox events (stop propagation so the row doesn't toggle)
+    grid.querySelectorAll('.asset-checkbox').forEach(cb => {
+      cb.addEventListener('click', (e) => e.stopPropagation());
+      cb.addEventListener('change', (e) => {
+        const assetKey = e.target.dataset.asset;
+        if (e.target.checked) {
+          if (!_settings.selectedAssets.includes(assetKey)) {
+            _settings.selectedAssets.push(assetKey);
+          }
+        } else {
+          _settings.selectedAssets = _settings.selectedAssets.filter(k => k !== assetKey);
+        }
+        e.target.closest('.asset-row').classList.toggle('selected', e.target.checked);
+        updateSelectionCount();
+        debounceSave();
+      });
+    });
+
+    // Bind row-summary click to toggle expand
+    grid.querySelectorAll('.asset-row-summary').forEach(summary => {
+      summary.addEventListener('click', (e) => {
+        if (e.target.closest('.asset-checkbox')) return;
+        const row = summary.closest('.asset-row');
+        const key = row.dataset.asset;
+        const nowExpanded = !row.classList.contains('expanded');
+        row.classList.toggle('expanded', nowExpanded);
+        if (nowExpanded) _expandedAssets.add(key);
+        else _expandedAssets.delete(key);
+      });
+    });
+
+    updateSelectionCount();
+  }
+
+  function getSelectedAssets() {
+    return _settings.selectedAssets.filter(k => _data.assets[k] && _assetMetrics[k]);
+  }
+
+  // Show/hide the empty-state banners on Compare and DCA tabs and hide the
+  // dependent chart cards so the user isn't staring at a blank canvas.
+  function updateEmptyStates(isEmpty) {
+    const compareBanner = document.getElementById('compareEmptyState');
+    const dcaBanner = document.getElementById('dcaEmptyState');
+    if (compareBanner) compareBanner.style.display = isEmpty ? 'block' : 'none';
+    if (dcaBanner) dcaBanner.style.display = isEmpty ? 'block' : 'none';
+    // Hide the chart/table cards when empty so the banner is the focal point
+    document.querySelectorAll('#tab-compare .card.chart-container, #tab-dca .card.chart-container').forEach(el => {
+      el.style.display = isEmpty ? 'none' : '';
+    });
+  }
+
+  function updateSelectionCount() {
+    const count = _settings.selectedAssets.length;
+    const el = document.getElementById('selectionCount');
+    if (count === 0) {
+      el.innerHTML = 'Check the assets you want to compare. <strong>0 selected</strong>';
+    } else {
+      const names = _settings.selectedAssets.map(k => _data.assets[k] ? _data.assets[k].name : k).join(', ');
+      el.innerHTML = '<strong>' + count + ' selected:</strong> ' + names;
+    }
+  }
+
+  // --- Charts (Pure Canvas) ---
+  function setupCanvas(canvas) {
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    return { ctx, w: rect.width, h: rect.height };
+  }
+
+  // Shared helper: draw end-of-line labels with guaranteed spacing
+  function drawEndLabels(ctx, labels, lineEndX, margin) {
+    // labels = [{y: natural Y, text: 'BTC $148K', color: '#f59e0b'}, ...]
+    // Sort by natural Y position (top to bottom)
+    labels.sort((a, b) => a.y - b.y);
+
+    // Force minimum gap of 18px between labels
+    const minGap = 18;
+    const topBound = margin.top + 5;
+    const bottomBound = margin.top + (labels.length > 0 ? 600 : 400); // stay within chart
+
+    for (let i = 1; i < labels.length; i++) {
+      if (labels[i].y - labels[i - 1].y < minGap) {
+        labels[i].y = labels[i - 1].y + minGap;
+      }
+    }
+
+    // If labels overflow the bottom, push everything up
+    if (labels.length > 0) {
+      const lastLabel = labels[labels.length - 1];
+      if (lastLabel.y > bottomBound) {
+        const overflow = lastLabel.y - bottomBound;
+        labels.forEach(l => l.y -= overflow);
+      }
+      // Make sure first label isn't above top
+      if (labels[0].y < topBound) {
+        const shift = topBound - labels[0].y;
+        labels.forEach(l => l.y += shift);
+      }
+    }
+
+    // Draw each label with background pill and leader line
+    labels.forEach(l => {
+      // Small leader line from data point to label
+      ctx.strokeStyle = l.color;
+      ctx.lineWidth = 0.5;
+      ctx.globalAlpha = 0.4;
+      ctx.beginPath();
+      ctx.moveTo(lineEndX, l.naturalY);
+      ctx.lineTo(lineEndX + 4, l.y);
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+
+      // Background pill
+      ctx.font = 'bold 12px -apple-system, sans-serif';
+      const textW = ctx.measureText(l.text).width;
+      ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+      ctx.fillRect(lineEndX + 5, l.y - 10, textW + 8, 17);
+
+      // Text
+      ctx.fillStyle = l.color;
+      ctx.textAlign = 'left';
+      ctx.fillText(l.text, lineEndX + 9, l.y + 3);
+    });
+  }
+
+  function renderCompareCharts() {
+    updateEmptyStates(getSelectedAssets().length === 0);
+    renderReturnsChart();
+    renderVolatilityChart();
+    renderDrawdownChart();
+  }
+
+  function renderReturnsChart() {
+    const canvas = document.getElementById('returnsChart');
+    if (!canvas) return;
+    const { ctx, w, h } = setupCanvas(canvas);
+    const years = _settings.compareTimeframe || 10;
+
+    const selected = getSelectedAssets();
+    const assets = selected.filter(k => _assetMetrics[k] && _assetMetrics[k].returns[String(years)] !== null);
+    const values = assets.map(k => _assetMetrics[k].returns[String(years)] || 0);
+
+    if (assets.length === 0) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Select assets on the Overview tab to compare them here.', w / 2, h / 2);
+      return;
+    }
+
+    // Layout
+    const margin = { top: 30, right: 30, bottom: 50, left: 70 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    const maxVal = Math.max(...values, 0) * 1.1;
+    const minVal = Math.min(...values, 0) * 1.1;
+    const range = maxVal - minVal || 1;
+
+    ctx.clearRect(0, 0, w, h);
+
+    // Grid lines
+    const gridSteps = 5;
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 0.5;
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'right';
+
+    for (let i = 0; i <= gridSteps; i++) {
+      const val = minVal + (range / gridSteps) * i;
+      const y = margin.top + plotH - (plotH * (val - minVal) / range);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(w - margin.right, y);
+      ctx.stroke();
+      ctx.fillText(val.toFixed(0) + '%', margin.left - 8, y + 4);
+    }
+
+    // Zero line
+    if (minVal < 0) {
+      const zeroY = margin.top + plotH - (plotH * (0 - minVal) / range);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, zeroY);
+      ctx.lineTo(w - margin.right, zeroY);
+      ctx.stroke();
+    }
+
+    // Bars
+    const barWidth = Math.min(60, plotW / assets.length * 0.7);
+    const gap = (plotW - barWidth * assets.length) / (assets.length + 1);
+
+    assets.forEach((key, i) => {
+      const val = values[i];
+      const asset = _data.assets[key];
+      const x = margin.left + gap + i * (barWidth + gap);
+      const zeroY = margin.top + plotH - (plotH * (0 - minVal) / range);
+      const valY = margin.top + plotH - (plotH * (val - minVal) / range);
+
+      ctx.fillStyle = asset.color;
+      if (val >= 0) {
+        ctx.fillRect(x, valY, barWidth, zeroY - valY);
+      } else {
+        ctx.fillRect(x, zeroY, barWidth, valY - zeroY);
+      }
+
+      // Value label
+      ctx.fillStyle = '#e2e8f0';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 13px -apple-system, sans-serif';
+      ctx.fillText(val.toFixed(1) + '%', x + barWidth / 2, val >= 0 ? valY - 8 : valY + 16);
+
+      // Ticker label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '12px -apple-system, sans-serif';
+      ctx.fillText(key, x + barWidth / 2, h - margin.bottom + 20);
+    });
+
+    // Required return line
+    const reqY = margin.top + plotH - (plotH * (_settings.requiredReturn - minVal) / range);
+    if (reqY > margin.top && reqY < margin.top + plotH) {
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([8, 4]);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, reqY);
+      ctx.lineTo(w - margin.right, reqY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f59e0b';
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 12px -apple-system, sans-serif';
+      ctx.fillText('Your Required: ' + _settings.requiredReturn + '%', margin.left + 8, reqY - 8);
+    }
+  }
+
+  function renderDCAGrowthChart() {
+    const canvas = document.getElementById('dcaGrowthChart');
+    if (!canvas) return;
+    const { ctx, w, h } = setupCanvas(canvas);
+
+    const margin = { top: 30, right: 120, bottom: 50, left: 80 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const selected = getSelectedAssets();
+    if (selected.length === 0) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Select assets on the Overview tab to compare them here.', w / 2, h / 2);
+      return;
+    }
+
+    const budget = _settings.monthlyBudget;
+    const years = _settings.compareTimeframe || 10;
+    const months = years * 12;
+    const subtitleEl = document.getElementById('dcaChartSubtitle');
+    if (subtitleEl) subtitleEl.innerHTML = 'What <strong>$' + budget.toLocaleString() + '</strong>/month invested over the last <strong>' + years + ' year' + (years > 1 ? 's' : '') + '</strong> would have grown to. Each line\'s final value is labeled. <em>Y-axis uses log scale so high and moderate performers are both visible.</em>';
+
+    // Simulate DCA for each selected asset over the selected timeframe
+    const datasets = [];
+    let globalMax = 0;
+    let maxLen = 0;
+
+    selected.forEach(key => {
+      const asset = _data.assets[key];
+      if (!asset) return;
+      const prices = sliceValidPrices(asset.monthlyPrices, months);
+      if (prices.length < 2) return;
+      let totalUnits = 0;
+      let totalInvested = 0;
+      const points = [];
+
+      prices.forEach((p, i) => {
+        totalUnits += budget / p.close;
+        totalInvested += budget;
+        const currentValue = totalUnits * p.close;
+        if (!isFinite(currentValue)) return;
+        points.push(currentValue);
+        if (currentValue > globalMax) globalMax = currentValue;
+      });
+
+      if (points.length < 2) return;
+      if (points.length > maxLen) maxLen = points.length;
+      datasets.push({ key, color: asset.color, points, dates: prices.map(p => p.date), totalInvested });
+    });
+
+    if (datasets.length === 0) return;
+
+    // Total invested line (same for all assets)
+    const totalInvestedPoints = [];
+    for (let i = 0; i < maxLen; i++) {
+      totalInvestedPoints.push(budget * (i + 1));
+    }
+    const maxInvested = budget * maxLen;
+    if (maxInvested > globalMax) globalMax = maxInvested;
+
+    // LOG SCALE, zoomed into the range where the interesting divergence happens.
+    // Without this, the bottom half of the chart would be empty (the early DCA
+    // months when all assets are just starting). We set yMin to 1/10 of the
+    // smallest final value, so the chart focuses on where the assets actually
+    // diverge. Early-month lines will still be visible at the bottom, but they
+    // won't hog half the vertical space.
+    const finalValues = datasets.map(ds => ds.points[ds.points.length - 1]);
+    const minFinal = Math.min(...finalValues);
+    // Also include maxInvested in the "interesting" range so the Invested baseline is visible
+    const yMinCandidate = Math.min(minFinal / 10, maxInvested / 4);
+    const yMin = Math.max(budget, yMinCandidate);
+    const yMax = globalMax * 1.2;
+    const logMin = Math.log10(yMin);
+    const logMax = Math.log10(yMax);
+    const logRange = logMax - logMin;
+
+    function yFromVal(val) {
+      const clamped = Math.max(yMin, val);
+      const logVal = Math.log10(clamped);
+      return margin.top + plotH - (plotH * (logVal - logMin) / logRange);
+    }
+
+    // Grid lines at natural dollar milestones
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 0.5;
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'right';
+
+    // Generate nice gridlines: 500, 1K, 2K, 5K, 10K, 20K, 50K, 100K, 200K, 500K, 1M, 2M, 5M
+    const gridValues = [500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000];
+    gridValues.forEach(val => {
+      if (val < yMin * 0.95 || val > yMax * 1.05) return;
+      const y = yFromVal(val);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(w - margin.right, y);
+      ctx.stroke();
+      ctx.fillText('$' + formatNum(val), margin.left - 8, y + 4);
+    });
+
+    // Draw "total invested" baseline (dashed gray) — spans full timeframe
+    ctx.strokeStyle = '#64748b';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath();
+    totalInvestedPoints.forEach((val, i) => {
+      // Invested line uses full maxLen span; goes from left edge to right edge
+      const x = margin.left + (plotW * i / (maxLen - 1));
+      const y = yFromVal(val);
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Label for invested line
+    const invLastX = margin.left + plotW;
+    const invLastY = yFromVal(maxInvested);
+    ctx.fillStyle = '#64748b';
+    ctx.textAlign = 'left';
+    ctx.font = 'bold 12px -apple-system, sans-serif';
+    ctx.fillText('Invested $' + formatNum(maxInvested), invLastX + 6, invLastY + 4);
+
+    // Draw asset lines with inline labels
+    // Assets have different histories (BTC 10yr, ETH 8.5yr, SOL 6yr), so we
+    // RIGHT-align every line to today's date. Shorter histories start later
+    // on the X-axis. Without this, SOL's line would appear to "stop in 2022"
+    // because 6 years of data got plotted starting from the left edge.
+    datasets.sort((a, b) => b.points[b.points.length - 1] - a.points[a.points.length - 1]);
+    const dcaLabelOffsets = [0.3, 0.5, 0.7, 0.4, 0.6, 0.8, 0.2, 0.9];
+    const dcaEndLabels = [];
+
+    // Helper: X position based on months-from-end. The last point always
+    // lands at the right edge; earlier points step left by (1/maxLen) each.
+    function xFromIndex(i, totalLen) {
+      const monthsFromEnd = (totalLen - 1) - i;
+      return margin.left + plotW - (plotW * monthsFromEnd / (maxLen - 1));
+    }
+
+    datasets.forEach((ds, dsIdx) => {
+      ctx.strokeStyle = ds.color;
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ds.points.forEach((val, i) => {
+        const x = xFromIndex(i, ds.points.length);
+        const y = yFromVal(val);
+        if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      });
+      ctx.stroke();
+
+      // Inline label along the line
+      const labelPct = dcaLabelOffsets[dsIdx % dcaLabelOffsets.length];
+      const labelIdx = Math.floor(ds.points.length * labelPct);
+      if (labelIdx >= 0 && labelIdx < ds.points.length) {
+        const lx = xFromIndex(labelIdx, ds.points.length);
+        const ly = yFromVal(ds.points[labelIdx]);
+        ctx.font = 'bold 11px -apple-system, sans-serif';
+        const textW = ctx.measureText(ds.key).width;
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.fillRect(lx - 2, ly - 14, textW + 6, 16);
+        ctx.fillStyle = ds.color;
+        ctx.textAlign = 'left';
+        ctx.fillText(ds.key, lx, ly - 2);
+      }
+
+      // Collect end label
+      const lastVal = ds.points[ds.points.length - 1];
+      const naturalY = yFromVal(lastVal);
+      dcaEndLabels.push({ y: naturalY, naturalY, text: ds.key + ' $' + formatNum(lastVal), color: ds.color });
+    });
+
+    // Draw end labels at the right edge of the plot (all lines end there now)
+    const lineEndX = margin.left + plotW;
+    drawEndLabels(ctx, dcaEndLabels, lineEndX, margin);
+
+    // X-axis year labels using the longest-running dataset so the full range shows
+    const longestDataset = datasets.reduce((a, b) => a.dates.length >= b.dates.length ? a : b);
+    const longestDates = longestDataset.dates;
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'center';
+    ctx.font = '11px -apple-system, sans-serif';
+    const yearsShown = new Set();
+    longestDates.forEach((date, i) => {
+      const year = date.substring(0, 4);
+      if (!yearsShown.has(year)) {
+        yearsShown.add(year);
+        const x = xFromIndex(i, longestDates.length);
+        ctx.fillText(year, x, h - margin.bottom + 18);
+      }
+    });
+  }
+
+  function renderVolatilityChart() {
+    const canvas = document.getElementById('volatilityChart');
+    if (!canvas) return;
+    const { ctx, w, h } = setupCanvas(canvas);
+
+    const margin = { top: 30, right: 30, bottom: 50, left: 70 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const selected = getSelectedAssets();
+    if (selected.length === 0) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Select assets on the Overview tab to compare them here.', w / 2, h / 2);
+      return;
+    }
+
+    // Calculate rolling 12-month returns for selected timeframe
+    const years = _settings.compareTimeframe || 10;
+    const assets = [];
+    let globalMax = -Infinity;
+    let globalMin = Infinity;
+
+    selected.forEach(key => {
+      const asset = _data.assets[key];
+      if (!asset || asset.monthlyPrices.length < 13) return;
+      const allPrices = asset.monthlyPrices;
+      const returns = [];
+
+      for (let i = 12; i < allPrices.length; i++) {
+        const ret = ((allPrices[i].close / allPrices[i - 12].close) - 1) * 100;
+        returns.push(ret);
+      }
+
+      // Trim to selected timeframe
+      const keepMonths = years * 12;
+      const trimStart = Math.max(0, returns.length - keepMonths);
+      const trimmed = returns.slice(trimStart);
+
+      const best = Math.max(...trimmed);
+      const worst = Math.min(...trimmed);
+      const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
+
+      if (best > globalMax) globalMax = best;
+      if (worst < globalMin) globalMin = worst;
+
+      assets.push({ key, color: asset.color, name: asset.name, best, worst, avg });
+    });
+
+    if (assets.length === 0) return;
+
+    // Use the MEDIAN best/worst to set the visible range (not max/min), so a
+    // single extreme outlier (like Solana's +13,000%) can't blow up the scale.
+    // Then any values outside the visible range show with clipping arrows.
+    const allBests = assets.map(a => a.best).sort((a, b) => a - b);
+    const allWorsts = assets.map(a => a.worst).sort((a, b) => a - b);
+    const medianBest = allBests[Math.floor(allBests.length / 2)];
+    const medianWorst = allWorsts[Math.floor(allWorsts.length / 2)];
+
+    // Visible window: generous around the median but hard cap so it stays readable.
+    // If median best is 100%, show up to ~200%. If median best is 500%, show up to ~750%.
+    // Hard cap at 500% no matter what, so SOL's 13,044% always gets an arrow.
+    const visibleMax = Math.min(500, Math.max(medianBest * 2, _settings.requiredReturn * 1.5, 50));
+    const visibleMin = Math.max(-100, Math.min(medianWorst * 1.5, -20));
+    const range = visibleMax - visibleMin;
+
+    function yFromVal(val) {
+      const clamped = Math.max(visibleMin, Math.min(visibleMax, val));
+      return margin.top + plotH - (plotH * (clamped - visibleMin) / range);
+    }
+
+    // Grid lines at nice round intervals
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 0.5;
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'right';
+
+    // Pick a nice grid step size
+    const rawStep = range / 6;
+    const gridStep = rawStep > 50 ? 50 : rawStep > 20 ? 25 : rawStep > 10 ? 10 : 5;
+    const gridStart = Math.ceil(visibleMin / gridStep) * gridStep;
+    for (let val = gridStart; val <= visibleMax; val += gridStep) {
+      const y = yFromVal(val);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(w - margin.right, y);
+      ctx.stroke();
+      ctx.fillText((val >= 0 ? '+' : '') + val.toFixed(0) + '%', margin.left - 8, y + 4);
+    }
+
+    // Zero line
+    if (visibleMin < 0 && visibleMax > 0) {
+      const zeroY = yFromVal(0);
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(margin.left, zeroY);
+      ctx.lineTo(w - margin.right, zeroY);
+      ctx.stroke();
+    }
+
+    // Required return line
+    const reqVal = _settings.requiredReturn;
+    if (reqVal <= visibleMax && reqVal >= visibleMin) {
+      const reqY = yFromVal(reqVal);
+      ctx.strokeStyle = '#f59e0b';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([8, 4]);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, reqY);
+      ctx.lineTo(w - margin.right, reqY);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f59e0b';
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 11px -apple-system, sans-serif';
+      ctx.fillText('Your Target: ' + reqVal + '%', margin.left + 8, reqY - 8);
+    }
+
+    // Draw range bars for each asset
+    const barWidth = Math.min(60, plotW / assets.length * 0.55);
+    const gap = (plotW - barWidth * assets.length) / (assets.length + 1);
+
+    assets.forEach((a, i) => {
+      const x = margin.left + gap + i * (barWidth + gap);
+      const centerX = x + barWidth / 2;
+
+      const bestClamped = Math.min(a.best, visibleMax);
+      const worstClamped = Math.max(a.worst, visibleMin);
+      const bestClipped = a.best > visibleMax;
+      const worstClipped = a.worst < visibleMin;
+
+      const bestY = yFromVal(bestClamped);
+      const worstY = yFromVal(worstClamped);
+      const avgY = yFromVal(Math.max(visibleMin, Math.min(visibleMax, a.avg)));
+
+      // Range bar fill
+      ctx.fillStyle = a.color + '25';
+      ctx.fillRect(x, bestY, barWidth, worstY - bestY);
+
+      // Bar border
+      ctx.strokeStyle = a.color;
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x, bestY, barWidth, worstY - bestY);
+
+      // Top cap (or arrow if clipped)
+      ctx.strokeStyle = a.color;
+      ctx.lineWidth = 2;
+      if (bestClipped) {
+        // Arrow pointing up
+        ctx.fillStyle = a.color;
+        ctx.beginPath();
+        ctx.moveTo(centerX, margin.top + 2);
+        ctx.lineTo(centerX - 8, margin.top + 14);
+        ctx.lineTo(centerX + 8, margin.top + 14);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(x - 4, bestY);
+        ctx.lineTo(x + barWidth + 4, bestY);
+        ctx.stroke();
+      }
+
+      // Bottom cap (or arrow if clipped)
+      if (worstClipped) {
+        ctx.fillStyle = a.color;
+        ctx.beginPath();
+        ctx.moveTo(centerX, margin.top + plotH - 2);
+        ctx.lineTo(centerX - 8, margin.top + plotH - 14);
+        ctx.lineTo(centerX + 8, margin.top + plotH - 14);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        ctx.beginPath();
+        ctx.moveTo(x - 4, worstY);
+        ctx.lineTo(x + barWidth + 4, worstY);
+        ctx.stroke();
+      }
+
+      // Average dot
+      ctx.fillStyle = a.color;
+      ctx.beginPath();
+      ctx.arc(centerX, avgY, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#0f172a';
+      ctx.beginPath();
+      ctx.arc(centerX, avgY, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Labels: Best (above bar or at top if clipped)
+      ctx.fillStyle = '#e2e8f0';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 12px -apple-system, sans-serif';
+      const bestLabel = '+' + a.best.toFixed(0) + '%';
+      if (bestClipped) {
+        ctx.fillText(bestLabel + ' ▲', centerX, margin.top + 28);
+      } else {
+        ctx.fillText(bestLabel, centerX, bestY - 8);
+      }
+
+      // Labels: Worst (below bar or at bottom if clipped)
+      const worstLabel = a.worst.toFixed(0) + '%';
+      if (worstClipped) {
+        ctx.fillText(worstLabel + ' ▼', centerX, margin.top + plotH - 18);
+      } else {
+        ctx.fillText(worstLabel, centerX, worstY + 18);
+      }
+
+      // Labels: Average (next to dot)
+      ctx.fillStyle = a.color;
+      ctx.textAlign = 'left';
+      ctx.font = 'bold 11px -apple-system, sans-serif';
+      const avgLabel = 'avg ' + (a.avg >= 0 ? '+' : '') + a.avg.toFixed(0) + '%';
+      ctx.fillText(avgLabel, centerX + 12, avgY + 4);
+
+      // Ticker label at bottom
+      ctx.fillStyle = a.color;
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 13px -apple-system, sans-serif';
+      ctx.fillText(a.key, centerX, h - margin.bottom + 22);
+    });
+  }
+
+  function renderDrawdownChart() {
+    const canvas = document.getElementById('drawdownChart');
+    if (!canvas) return;
+    const { ctx, w, h } = setupCanvas(canvas);
+
+    const margin = { top: 30, right: 30, bottom: 50, left: 70 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    const years = _settings.compareTimeframe || 10;
+    const months = years * 12;
+    const selected = getSelectedAssets();
+    const assets = selected.filter(k => _assetMetrics[k] && _data.assets[k]);
+
+    // Calculate drawdown for selected timeframe
+    const values = assets.map(k => {
+      const allPrices = _data.assets[k].monthlyPrices;
+      const startIdx = Math.max(0, allPrices.length - months);
+      const prices = allPrices.slice(startIdx);
+      return calcMaxDrawdown(prices).drawdown;
+    });
+
+    ctx.clearRect(0, 0, w, h);
+
+    if (assets.length === 0) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '16px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Select assets on the Overview tab to compare them here.', w / 2, h / 2);
+      return;
+    }
+
+    const minVal = Math.min(...values) * 1.1;
+
+    // Grid
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 0.5;
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.textAlign = 'right';
+
+    for (let i = 0; i <= 5; i++) {
+      const val = (minVal / 5) * i;
+      const y = margin.top + (plotH * i / 5);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(w - margin.right, y);
+      ctx.stroke();
+      ctx.fillText(val.toFixed(0) + '%', margin.left - 8, y + 4);
+    }
+
+    // Bars (negative direction)
+    const barWidth = Math.min(60, plotW / assets.length * 0.7);
+    const gap = (plotW - barWidth * assets.length) / (assets.length + 1);
+
+    assets.forEach((key, i) => {
+      const val = values[i];
+      const asset = _data.assets[key];
+      const x = margin.left + gap + i * (barWidth + gap);
+      const barH = plotH * (Math.abs(val) / Math.abs(minVal));
+
+      ctx.fillStyle = asset.color + '99';
+      ctx.fillRect(x, margin.top, barWidth, barH);
+
+      // Value label
+      ctx.fillStyle = '#e2e8f0';
+      ctx.textAlign = 'center';
+      ctx.font = 'bold 13px -apple-system, sans-serif';
+      ctx.fillText(val.toFixed(1) + '%', x + barWidth / 2, margin.top + barH + 18);
+
+      // Ticker label
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '12px -apple-system, sans-serif';
+      ctx.fillText(key, x + barWidth / 2, h - margin.bottom + 20);
+    });
+  }
+
+  // --- DCA Rendering ---
+  function renderDCA() {
+    const container = document.getElementById('dcaResults');
+    const budget = _settings.monthlyBudget;
+    document.getElementById('dcaBudgetDisplay').textContent = '$' + budget.toLocaleString();
+
+    const selected = getSelectedAssets();
+    updateEmptyStates(selected.length === 0);
+
+    if (selected.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    // Use the currently selected timeframe instead of showing both 5Y and 10Y
+    const years = _settings.compareTimeframe || 10;
+    const months = years * 12;
+    const label = `Last ${years} Year${years > 1 ? 's' : ''} (${months} months)`;
+
+    let html = `<div class="dca-period-header">${label}</div>`;
+    html += '<div class="dca-table-wrap"><table class="dca-table">';
+    html += '<thead><tr><th>Asset</th><th>Total Invested</th><th>Ending Value</th><th>Gain/Loss</th><th>Return %</th><th>Ann. Return</th></tr></thead><tbody>';
+
+    selected.forEach(key => {
+      const asset = _data.assets[key];
+      if (!asset) return;
+      const result = calcDCA(asset.monthlyPrices, budget, months);
+      if (!result) return;
+
+      const gainClass = result.totalGain >= 0 ? 'positive' : 'negative';
+      html += `<tr>
+        <td><span class="asset-dot" style="background:${asset.color}"></span>${asset.name}</td>
+        <td>$${formatNum(result.totalInvested)}</td>
+        <td style="font-weight:600">$${formatNum(result.endingValue)}</td>
+        <td class="${gainClass}" style="font-weight:600">${result.totalGain >= 0 ? '+' : ''}$${formatNum(result.totalGain)}</td>
+        <td class="${gainClass}">${result.gainPct >= 0 ? '+' : ''}${result.gainPct.toFixed(1)}%</td>
+        <td class="${gainClass}">${result.annualizedReturn.toFixed(1)}%</td>
+      </tr>`;
+    });
+
+    html += '</tbody></table></div>';
+    container.innerHTML = html;
+  }
+
+  // --- Helpers ---
+  function formatNum(n) {
+    if (n === null || n === undefined) return 'N/A';
+    if (Math.abs(n) >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (Math.abs(n) >= 1000) return n.toLocaleString(undefined, { maximumFractionDigits: 0 });
+    if (Math.abs(n) >= 1) return n.toFixed(2);
+    return n.toFixed(4);
+  }
+
+  function fmtReturn(val) {
+    if (val === null || val === undefined) return '<span style="color:var(--muted)">N/A</span>';
+    const cls = val >= 0 ? 'positive' : 'negative';
+    const prefix = val >= 0 ? '+' : '';
+    return `<span class="${cls}">${prefix}${val.toFixed(1)}%</span>`;
+  }
+
+  function escapeHtml(str) {
+    return str.replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
+  // --- Event Binding ---
+  function bindEvents() {
+    // Data actions: Export / Import / Reset
+    const btnExport = document.getElementById('btnExport');
+    const btnImport = document.getElementById('btnImport');
+    const btnReset = document.getElementById('btnReset');
+    const importInput = document.getElementById('importFileInput');
+    if (btnExport) btnExport.addEventListener('click', exportSettings);
+    if (btnImport && importInput) {
+      btnImport.addEventListener('click', () => importInput.click());
+      importInput.addEventListener('change', (e) => {
+        importSettings(e.target.files[0]);
+        e.target.value = '';
+      });
+    }
+    if (btnReset) btnReset.addEventListener('click', resetSettings);
+
+    // Empty-state "Go to Overview" buttons on Compare and DCA tabs
+    document.querySelectorAll('[data-goto-overview]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const overviewBtn = document.querySelector('.tab-btn[data-tab="overview"]');
+        if (overviewBtn) overviewBtn.click();
+      });
+    });
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        const tab = btn.dataset.tab;
+        document.getElementById('tab-' + tab).classList.add('active');
+        _settings.activeTab = tab;
+        debounceSave();
+        renderPlanSummary();
+
+        // Re-render content when switching tabs
+        if (tab === 'compare') {
+          setTimeout(renderCompareCharts, 150);
+        } else if (tab === 'dca') {
+          renderDCA();
+          setTimeout(renderDCAGrowthChart, 150);
+        }
+      });
+    });
+
+    // Timeframe buttons (shared by Compare tab and DCA Simulator tab)
+    document.querySelectorAll('.timeframe-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const years = parseInt(btn.dataset.years);
+        _settings.compareTimeframe = years;
+        // Sync all timeframe buttons across tabs so both sets match
+        document.querySelectorAll('.timeframe-btn').forEach(b => {
+          if (parseInt(b.dataset.years) === years) b.classList.add('active');
+          else b.classList.remove('active');
+        });
+        debounceSave();
+        // Re-render whichever chart is currently visible
+        if (_settings.activeTab === 'dca') {
+          renderDCAGrowthChart();
+          renderDCA();
+        } else {
+          renderCompareCharts();
+        }
+      });
+    });
+
+    // Plan summary link: clicking it switches back to the Freedom Number tab
+    document.getElementById('planSummaryLink').addEventListener('click', e => {
+      e.preventDefault();
+      const freedomBtn = document.querySelector('.tab-btn[data-tab="freedom"]');
+      if (freedomBtn) freedomBtn.click();
+    });
+
+    // Selection bar buttons
+    document.getElementById('selAllCrypto').addEventListener('click', () => {
+      _activeAssets.forEach(k => {
+        if (_data.assets[k] && _data.assets[k].category === 'Cryptocurrency' && !_settings.selectedAssets.includes(k)) {
+          _settings.selectedAssets.push(k);
+        }
+      });
+      renderAssetCards();
+      debounceSave();
+    });
+    document.getElementById('selAllTraditional').addEventListener('click', () => {
+      _activeAssets.forEach(k => {
+        if (_data.assets[k] && _data.assets[k].category !== 'Cryptocurrency' && !_settings.selectedAssets.includes(k)) {
+          _settings.selectedAssets.push(k);
+        }
+      });
+      renderAssetCards();
+      debounceSave();
+    });
+    document.getElementById('selClearAll').addEventListener('click', () => {
+      _settings.selectedAssets = [];
+      renderAssetCards();
+      debounceSave();
+    });
+
+    // Category filter buttons
+    document.querySelectorAll('.cat-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        _categoryFilter = btn.dataset.category;
+        renderAssetCards();
+      });
+    });
+
+    // Freedom Number Builder inputs
+    ['expMonthly','expHousing','expFood','expHealth','expTransport','expTravel','expOther','expLifestyle','incSocSec','incPension','incRental','incPartTime','wdRate','spSavings','spMonthly','spYears'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('input', onFNInput);
+      if (el && el.tagName === 'SELECT') el.addEventListener('change', onFNInput);
+    });
+    document.getElementById('incSkipSS').addEventListener('change', onFNInput);
+
+    // Inflation slider — live-updates the value label and re-renders
+    const inflSlider = document.getElementById('inflationSlider');
+    if (inflSlider) {
+      inflSlider.addEventListener('input', () => {
+        const v = parseFloat(inflSlider.value);
+        _settings.fn.inflationRate = isNaN(v) ? 3 : v;
+        const inflValEl = document.getElementById('inflationValue');
+        if (inflValEl) inflValEl.textContent = _settings.fn.inflationRate + '%';
+        renderFreedomNumber();
+        debounceSave();
+      });
+    }
+
+    // Show/hide inflation impact toggle
+    const inflTogBtn = document.getElementById('inflationToggleBtn');
+    if (inflTogBtn) {
+      inflTogBtn.addEventListener('click', () => {
+        _settings.fn.showInflation = !_settings.fn.showInflation;
+        renderFreedomNumber();
+        debounceSave();
+      });
+    }
+
+    // Inflation info icon — toggles the explainer
+    const inflInfoBtn = document.getElementById('inflationInfoBtn');
+    const inflInfoExp = document.getElementById('inflationInfoExplainer');
+    if (inflInfoBtn && inflInfoExp) {
+      inflInfoBtn.addEventListener('click', () => {
+        const open = inflInfoExp.classList.toggle('show');
+        inflInfoBtn.classList.toggle('active', open);
+      });
+    }
+
+    // FN mode toggle
+    document.getElementById('expToggleSimple').addEventListener('click', () => {
+      _settings.fn.expMode = 'simple';
+      document.getElementById('expToggleSimple').classList.add('active');
+      document.getElementById('expToggleDetailed').classList.remove('active');
+      document.getElementById('expSimpleMode').style.display = 'block';
+      document.getElementById('expDetailedMode').style.display = 'none';
+      renderFreedomNumber();
+      debounceSave();
+    });
+    document.getElementById('expToggleDetailed').addEventListener('click', () => {
+      _settings.fn.expMode = 'detailed';
+      document.getElementById('expToggleSimple').classList.remove('active');
+      document.getElementById('expToggleDetailed').classList.add('active');
+      document.getElementById('expSimpleMode').style.display = 'none';
+      document.getElementById('expDetailedMode').style.display = 'block';
+      renderFreedomNumber();
+      debounceSave();
+    });
+
+    // FN action buttons
+    document.getElementById('fnUseInPlan').addEventListener('click', useFreedomNumberInPlan);
+    document.getElementById('fnShowMath').addEventListener('click', () => {
+      const mathEl = document.getElementById('fnMath');
+      mathEl.classList.toggle('show');
+      document.getElementById('fnShowMath').textContent = mathEl.classList.contains('show') ? 'Hide the Math' : 'Show the Math';
+    });
+
+    // Custom ticker
+    document.getElementById('addTickerBtn').addEventListener('click', addCustomTicker);
+    document.getElementById('customTickerInput').addEventListener('keypress', e => {
+      if (e.key === 'Enter') addCustomTicker();
+    });
+
+    // Window resize: redraw charts on whichever tab is active
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        if (_settings.activeTab === 'compare') renderCompareCharts();
+        else if (_settings.activeTab === 'dca') renderDCAGrowthChart();
+      }, 200);
+    });
+
+    // Restore active tab (default is 'freedom').
+    // If a previous version stored a removed tab (myportfolio/portfolio/holding/selling),
+    // fall back to 'freedom' so nothing breaks.
+    const VALID_TABS = ['freedom', 'overview', 'compare', 'dca'];
+    if (!VALID_TABS.includes(_settings.activeTab)) _settings.activeTab = 'freedom';
+    if (_settings.activeTab && _settings.activeTab !== 'freedom') {
+      const btn = document.querySelector(`.tab-btn[data-tab="${_settings.activeTab}"]`);
+      if (btn) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('tab-' + _settings.activeTab).classList.add('active');
+        if (_settings.activeTab === 'compare') {
+          setTimeout(renderCompareCharts, 200);
+        } else if (_settings.activeTab === 'dca') {
+          setTimeout(renderDCAGrowthChart, 200);
+        }
+      }
+    }
+
+    // Restore timeframe - sync across all timeframe button sets
+    if (_settings.compareTimeframe) {
+      const years = _settings.compareTimeframe;
+      document.querySelectorAll('.timeframe-btn').forEach(b => {
+        if (parseInt(b.dataset.years) === years) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    }
+  }
+
+  // CoinGecko coin ID mapping for common tickers
+  const COINGECKO_MAP = {
+    'BTC': 'bitcoin', 'ETH': 'ethereum', 'XRP': 'ripple', 'BNB': 'binancecoin',
+    'SOL': 'solana', 'ADA': 'cardano', 'DOGE': 'dogecoin', 'AVAX': 'avalanche-2',
+    'LINK': 'chainlink', 'DOT': 'polkadot', 'SUI': 'sui', 'ATOM': 'cosmos',
+    'UNI': 'uniswap', 'LTC': 'litecoin', 'NEAR': 'near', 'MATIC': 'matic-network',
+    'SHIB': 'shiba-inu', 'TRX': 'tron', 'TON': 'the-open-network', 'XLM': 'stellar',
+    'ICP': 'internet-computer', 'APT': 'aptos', 'FIL': 'filecoin', 'ARB': 'arbitrum',
+    'OP': 'optimism', 'HBAR': 'hedera-hashgraph', 'VET': 'vechain', 'ALGO': 'algorand',
+    'AAVE': 'aave', 'MKR': 'maker', 'GRT': 'the-graph', 'FTM': 'fantom',
+    'SAND': 'the-sandbox', 'MANA': 'decentraland', 'AXS': 'axie-infinity',
+    'PEPE': 'pepe', 'WIF': 'dogwifcoin', 'BONK': 'bonk', 'FLOKI': 'floki',
+    'RENDER': 'render-token', 'INJ': 'injective-protocol', 'SEI': 'sei-network',
+    'STX': 'blockstack', 'RUNE': 'thorchain', 'CRO': 'crypto-com-chain',
+    'MSTR': 'microstrategy', 'COIN': 'coinbase', 'MARA': 'marathon-digital-holdings'
+  };
+
+  const CRYPTO_COLORS = [
+    '#ec4899', '#14b8a6', '#f97316', '#8b5cf6', '#10b981', '#e11d48',
+    '#06b6d4', '#84cc16', '#d946ef', '#0ea5e9', '#f43f5e', '#a3e635'
+  ];
+  let _colorIdx = 0;
+
+  async function fetchCoinGeckoData(ticker, coinId) {
+    const msg = document.getElementById('tickerMsg');
+    msg.textContent = 'Fetching ' + ticker + ' data from CoinGecko...';
+    msg.style.color = 'var(--accent)';
+
+    try {
+      const url = `https://api.coingecko.com/api/v3/coins/${coinId}/market_chart?vs_currency=usd&days=3650&interval=daily`;
+      const resp = await fetch(url, {
+        headers: { 'Accept': 'application/json' }
+      });
+
+      if (!resp.ok) {
+        if (resp.status === 429) {
+          msg.textContent = 'Rate limited. Try again in a minute.';
+        } else {
+          msg.textContent = 'Could not fetch ' + ticker + '. Try again later.';
+        }
+        msg.style.color = 'var(--red)';
+        return false;
+      }
+
+      const data = await resp.json();
+
+      // Group by month, take last price per month
+      const monthly = {};
+      data.prices.forEach(([tsMs, price]) => {
+        const dt = new Date(tsMs);
+        const key = dt.toISOString().substring(0, 7);
+        monthly[key] = {
+          date: dt.toISOString().substring(0, 10),
+          close: Math.round(price * 100) / 100
+        };
+      });
+
+      const prices = Object.values(monthly).sort((a, b) => a.date.localeCompare(b.date));
+
+      if (prices.length < 3) {
+        msg.textContent = 'Not enough data for ' + ticker + '.';
+        msg.style.color = 'var(--red)';
+        return false;
+      }
+
+      // Add to data
+      const color = CRYPTO_COLORS[_colorIdx++ % CRYPTO_COLORS.length];
+      _data.assets[ticker] = {
+        name: ticker,
+        ticker: ticker + '-USD',
+        category: 'Cryptocurrency',
+        color: color,
+        inceptionDate: prices[0].date,
+        monthlyPrices: prices
+      };
+
+      // Cache in localStorage
+      try {
+        const cached = JSON.parse(localStorage.getItem('catchup-freedom-path-cached-assets') || '{}');
+        cached[ticker] = _data.assets[ticker];
+        localStorage.setItem('catchup-freedom-path-cached-assets', JSON.stringify(cached));
+      } catch(e) {}
+
+      return true;
+
+    } catch(e) {
+      msg.textContent = 'Network error fetching ' + ticker + '. Try again.';
+      msg.style.color = 'var(--red)';
+      return false;
+    }
+  }
+
+  function loadCachedAssets() {
+    try {
+      const cached = JSON.parse(localStorage.getItem('catchup-freedom-path-cached-assets') || '{}');
+      Object.keys(cached).forEach(key => {
+        if (!_data.assets[key]) {
+          _data.assets[key] = cached[key];
+        }
+      });
+    } catch(e) {}
+  }
+
+  async function addCustomTicker() {
+    const input = document.getElementById('customTickerInput');
+    const msg = document.getElementById('tickerMsg');
+    const ticker = input.value.trim().toUpperCase();
+
+    if (!ticker) return;
+
+    if (_activeAssets.includes(ticker)) {
+      msg.textContent = ticker + ' is already displayed.';
+      msg.style.color = 'var(--accent)';
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+      return;
+    }
+
+    // Check if it's in the static data already
+    if (_data.assets[ticker]) {
+      _activeAssets.push(ticker);
+      if (!_settings.customTickers.includes(ticker)) {
+        _settings.customTickers.push(ticker);
+      }
+      computeAllMetrics();
+      renderAll();
+      debounceSave();
+      input.value = '';
+      msg.textContent = ticker + ' added!';
+      msg.style.color = 'var(--green)';
+      setTimeout(() => { msg.textContent = ''; }, 3000);
+      return;
+    }
+
+    // Try CoinGecko for crypto tokens
+    const coinId = COINGECKO_MAP[ticker];
+    if (coinId) {
+      const success = await fetchCoinGeckoData(ticker, coinId);
+      if (success) {
+        _activeAssets.push(ticker);
+        if (!_settings.customTickers.includes(ticker)) {
+          _settings.customTickers.push(ticker);
+        }
+          computeAllMetrics();
+        renderAll();
+        debounceSave();
+        input.value = '';
+        msg.textContent = ticker + ' added!';
+        msg.style.color = 'var(--green)';
+      }
+    } else {
+      // Try as a Yahoo Finance stock ticker
+      msg.textContent = ticker + ' not found. Try a crypto symbol (ETH, SOL, etc.) or a stock ticker already in our data.';
+      msg.style.color = 'var(--red)';
+    }
+    setTimeout(() => { msg.textContent = ''; }, 5000);
+  }
+
+  function debounceSave() {
+    clearTimeout(_debounceTimer);
+    _debounceTimer = setTimeout(saveSettings, 300);
+  }
+
+  // --- Start ---
+  loadData();
+
+})();
+</script>
+</body>
+</html>
