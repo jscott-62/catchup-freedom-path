@@ -1713,245 +1713,18 @@
     <div class="plan-summary-text" id="planSummaryText">
       Start on the Freedom Number tab to build your plan.
     </div>
-    <a href="#" class="plan-summary-link" id="planSummaryLink">Change these →</a>
+    <a href="https://jscott-62.github.io/catchup-freedom-number/" class="plan-summary-link" id="planSummaryLink">Recalculate →</a>
   </div>
 
   <!-- TABS -->
   <div class="tabs">
-    <button class="tab-btn active" data-tab="freedom">1. Freedom Number</button>
-    <button class="tab-btn" data-tab="overview">2. Overview</button>
-    <button class="tab-btn" data-tab="compare">3. Compare</button>
-    <button class="tab-btn" data-tab="dca">4. DCA Simulator</button>
-  </div>
-
-  <!-- TAB: FREEDOM NUMBER BUILDER -->
-  <div class="tab-content active" id="tab-freedom">
-    <div style="margin-bottom: 20px; padding: 16px 20px; background: rgba(245, 158, 11, 0.06); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 12px;">
-      <strong style="color: var(--accent);">Your Freedom Number</strong> is the total amount you need saved by retirement to live comfortably. Most calculators make you guess at it. This one helps you build it from the ground up using the 4% rule, adjusted for your real inputs.
-    </div>
-
-    <div class="fn-builder">
-      <!-- SECTION 1: Expenses -->
-      <div class="fn-section">
-        <h3>1. Your Current Expenses</h3>
-        <p class="fn-sub">What do you spend TODAY? Start with your current monthly expenses. The Retirement Adjustment below will tune this for your retirement years.</p>
-
-        <div class="fn-toggle">
-          <button id="expToggleSimple" class="active">Simple</button>
-          <button id="expToggleDetailed">Break it down</button>
-        </div>
-
-        <!-- Simple mode -->
-        <div id="expSimpleMode">
-          <div class="fn-field">
-            <label>Current Monthly Expenses</label>
-            <input type="number" id="expMonthly" min="500" max="50000" step="100" value="6000">
-            <span class="hint">What you spend per month right now on everything</span>
-          </div>
-        </div>
-
-        <!-- Detailed mode (hidden by default) -->
-        <div id="expDetailedMode" style="display:none;">
-          <div style="font-size: 12px; color: var(--accent); font-weight: 600; margin-bottom: 12px; padding: 8px 12px; background: rgba(245, 158, 11, 0.08); border-radius: 6px;">
-            Enter your <strong>current monthly</strong> spending by category. We'll multiply by 12 for the annual total, then the Retirement Adjustment below tunes it for your retirement years.
-          </div>
-          <div class="fn-field">
-            <label>Housing ($/month)</label>
-            <input type="number" id="expHousing" min="0" step="50" value="2000">
-            <span class="hint">Rent or mortgage, property taxes, insurance, maintenance</span>
-          </div>
-          <div class="fn-field">
-            <label>Food &amp; Groceries ($/month)</label>
-            <input type="number" id="expFood" min="0" step="50" value="800">
-          </div>
-          <div class="fn-field">
-            <label>Healthcare &amp; Insurance ($/month)</label>
-            <input type="number" id="expHealth" min="0" step="50" value="1200">
-            <span class="hint">Healthcare costs rise significantly in retirement</span>
-          </div>
-          <div class="fn-field">
-            <label>Transportation ($/month)</label>
-            <input type="number" id="expTransport" min="0" step="50" value="500">
-          </div>
-          <div class="fn-field">
-            <label>Travel &amp; Lifestyle ($/month)</label>
-            <input type="number" id="expTravel" min="0" step="50" value="800">
-            <span class="hint">What makes retirement worth it</span>
-          </div>
-          <div class="fn-field">
-            <label>Other ($/month)</label>
-            <input type="number" id="expOther" min="0" step="50" value="500">
-            <span class="hint">Subscriptions, hobbies, pets, gifts</span>
-          </div>
-          <div class="fn-field" id="expDetailedTotal" style="padding: 10px 12px; background: var(--bg); border-radius: 6px; display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border);">
-            <span style="font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">Total Monthly</span>
-            <span id="expDetailedTotalValue" style="font-size: 18px; font-weight: 700; color: var(--accent);">$5,800</span>
-          </div>
-        </div>
-
-        <div class="fn-field" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-          <label>Retirement Adjustment</label>
-          <select id="expLifestyle">
-            <option value="0.70">I'll spend less (70% of today)</option>
-            <option value="0.80" selected>I'll spend slightly less (80% of today)</option>
-            <option value="1.00">I'll spend about the same (100%)</option>
-            <option value="1.10">I'll spend slightly more (110%)</option>
-            <option value="1.20">I'll spend more (120% of today)</option>
-          </select>
-          <span class="hint">Most retirees spend 70-80% of what they spend now (no commute, kids grown, mortgage often paid). But healthcare goes UP, and travel might too. Adjust based on YOUR plans.</span>
-        </div>
-      </div>
-
-      <!-- SECTION 2: Social Security + Other Income -->
-      <div class="fn-section">
-        <h3>2. Guaranteed Income in Retirement</h3>
-        <p class="fn-sub">Every dollar of guaranteed income is a dollar your savings doesn't have to produce. This is why including these is critical.</p>
-
-        <div class="fn-field">
-          <label>Social Security (monthly)</label>
-          <input type="number" id="incSocSec" min="0" max="10000" step="50" value="1800">
-          <span class="hint">Look it up at ssa.gov/myaccount. Average is around $1,800.</span>
-        </div>
-
-        <label class="fn-checkbox">
-          <input type="checkbox" id="incSkipSS">
-          I don't want to count on Social Security
-        </label>
-
-        <div class="fn-field" style="margin-top: 16px;">
-          <label>Pension (monthly, if any)</label>
-          <input type="number" id="incPension" min="0" step="50" value="0">
-        </div>
-
-        <div class="fn-field">
-          <label>Rental Income (monthly, if any)</label>
-          <input type="number" id="incRental" min="0" step="50" value="0">
-        </div>
-
-        <div class="fn-field">
-          <label>Part-Time Work Income (monthly)</label>
-          <input type="number" id="incPartTime" min="0" step="50" value="0">
-          <span class="hint">Many retirees work part-time for the first 5-10 years</span>
-        </div>
-
-        <div class="fn-field" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-          <label>Withdrawal Rate</label>
-          <select id="wdRate">
-            <option value="0.03">3% — Very Conservative (40+ year retirement, crash-resistant)</option>
-            <option value="0.04" selected>4% — Standard (Trinity Study, 30-year retirement)</option>
-            <option value="0.05">5% — Aggressive (shorter retirement, comfortable with risk)</option>
-          </select>
-          <span class="hint">Lower rate = higher Freedom Number but more safety. Higher rate = lower target but more risk of running out.</span>
-        </div>
-      </div>
-
-      <!-- SECTION 3: Starting Point -->
-      <div class="fn-section">
-        <h3>3. Your Starting Point</h3>
-        <p class="fn-sub">Where are you today, and what can you commit to each month? These three inputs plus your Freedom Number determine the annual return rate you need.</p>
-
-        <div class="fn-field">
-          <label>Current Savings</label>
-          <input type="number" id="spSavings" min="0" step="1000" value="50000">
-          <span class="hint">All retirement savings you have today (401k, IRA, brokerage, crypto)</span>
-        </div>
-
-        <div class="fn-field">
-          <label>Monthly Investment</label>
-          <input type="number" id="spMonthly" min="0" step="50" value="500">
-          <span class="hint">How much you can realistically add each month</span>
-        </div>
-
-        <div class="fn-field">
-          <label>Years to Retirement</label>
-          <input type="number" id="spYears" min="1" max="40" step="1" value="15">
-          <span class="hint">How long you have to build your nest egg</span>
-        </div>
-
-        <div class="fn-field" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border);">
-          <label style="color: var(--accent);">Required Annual Return</label>
-          <div style="font-size: 32px; font-weight: 800; color: var(--accent); margin-top: 4px;" id="spRequiredReturn">—</div>
-          <span class="hint" id="spRequiredReturnHint">Your Freedom Number and these three inputs determine this rate.</span>
-        </div>
-      </div>
-
-      <!-- RESULT -->
-      <div class="fn-result hide-inflation" id="fnResultPanel">
-        <div class="fn-label" id="fnHeadlineLabel">Your Freedom Number</div>
-        <div class="fn-value-row">
-          <div class="fn-value" id="fnValue">$0</div>
-          <div class="fn-value-today-ref" id="fnTodayRef" style="display:none;">≈ $0 in today's purchasing power</div>
-        </div>
-        <div class="fn-breakdown" id="fnBreakdown">
-          Fill in the fields above to calculate your personalized Freedom Number.
-        </div>
-
-        <!-- Required return as a co-headline. Drives the asset decision. -->
-        <div class="rr-headline">
-          <div class="rr-headline-label">Required Annual Return</div>
-          <div class="rr-headline-row">
-            <div class="rr-headline-value" id="rrHeadlineValue">...</div>
-            <div class="rr-headline-real" id="rrHeadlineReal"></div>
-          </div>
-          <div class="rr-headline-zone" id="rrHeadlineZone"></div>
-          <div class="rr-headline-hint" id="rrHeadlineHint">Enter your savings and timeline above to see what return you need.</div>
-        </div>
-
-        <div class="inflation-toggle-wrap">
-          <button class="inflation-toggle-btn" id="inflationToggleBtn">
-            <span class="icon">📉</span><span id="inflationToggleText">Show Inflation Impact →</span>
-          </button>
-        </div>
-
-        <div class="inflation-block">
-          <div class="inflation-header">
-            <span class="inflation-label">
-              Inflation Assumption
-              <button class="info-icon-btn" id="inflationInfoBtn" title="What is this?">?</button>
-            </span>
-            <span class="inflation-value" id="inflationValue">3%</span>
-          </div>
-          <input type="range" id="inflationSlider" class="inflation-slider" min="0" max="10" step="0.5" value="3">
-          <div class="inflation-ticks">
-            <span>0%</span><span>2%</span><span>4%</span><span>6%</span><span>8%</span><span>10%</span>
-          </div>
-
-          <div class="info-explainer" id="inflationInfoExplainer">
-            <h4>What inflation does to your number</h4>
-            <p>Inflation is the slow rise in prices over time. A dollar today does not buy what it bought 20 years ago. The same is true going forward: by the time you retire in 15 years, the dollars in your retirement account will buy less than they do now.</p>
-
-            <h4>Why we show two return numbers</h4>
-            <p>Your investment statement will report one return (for example, 21%). That is the number on paper.</p>
-            <p>But inflation eats into that growth. If your account grew 21% but prices went up 3%, only 18% of that growth actually bought you more in real life.</p>
-            <ul>
-              <li><strong>21%</strong>: what your investments need to grow on paper each year</li>
-              <li><strong>18% after inflation</strong>: what your real buying power needs to grow</li>
-            </ul>
-
-            <h4>What inflation rate should you pick?</h4>
-            <ul>
-              <li>The government's official measure (CPI) usually says 2-3%</li>
-              <li>Many people believe real cost-of-living inflation, especially in housing, healthcare, and food, runs more like 6-10%</li>
-              <li>For a stress test, slide up to 10% and see what happens</li>
-            </ul>
-          </div>
-
-          <div class="inflation-explainer">
-            Official CPI runs around 2 to 3 percent. Many people believe the real cost-of-living inflation in housing, healthcare, and food is closer to 6 to 10 percent. Slide higher to see what happens to your number when the dollar is debased.
-          </div>
-        </div>
-
-        <div class="fn-actions">
-          <button class="fn-btn" id="fnUseInPlan">Use This in My Catch-Up Plan →</button>
-          <button class="fn-btn secondary" id="fnShowMath">Show the Math</button>
-        </div>
-        <div class="fn-math" id="fnMath"></div>
-      </div>
-    </div>
+    <button class="tab-btn active" data-tab="overview">1. Overview</button>
+    <button class="tab-btn" data-tab="compare">2. Compare</button>
+    <button class="tab-btn" data-tab="dca">3. DCA Simulator</button>
   </div>
 
   <!-- TAB: OVERVIEW -->
-  <div class="tab-content" id="tab-overview">
+  <div class="tab-content active" id="tab-overview">
     <div class="selection-bar">
       <div class="selection-count" id="selectionCount">
         Select assets to compare. <strong>0 selected</strong>
@@ -2067,39 +1840,15 @@
   // --- State ---
   let _data = null;
   let _settings = {
-    requiredReturn: 22,
+    // Set by URL params from the Freedom Number Calculator handoff
+    requiredReturn: 0,
+    freedomNumber: 0,
     timeline: 15,
     monthlyBudget: 500,
-    activeTab: 'freedom',
+    activeTab: 'overview',
     compareTimeframe: 10,
     customTickers: [],
-    selectedAssets: [],
-    // Freedom Number Builder state
-    fn: {
-      expMode: 'simple',
-      expMonthly: 6000,
-      expHousing: 2000,
-      expFood: 800,
-      expHealth: 1200,
-      expTransport: 500,
-      expTravel: 800,
-      expOther: 500,
-      expLifestyle: 0.80,
-      incSocSec: 1800,
-      incSkipSS: false,
-      incPension: 0,
-      incRental: 0,
-      incPartTime: 0,
-      wdRate: 0.04,
-      // Starting point
-      spSavings: 50000,
-      spMonthly: 500,
-      spYears: 15,
-      inflationRate: 3,
-      showInflation: false,
-      calculatedFN: 0,
-      calculatedRR: 0
-    }
+    selectedAssets: []
   };
   let _assetMetrics = {};
   let _activeAssets = [];
@@ -2125,11 +1874,55 @@
   function init() {
     loadCachedAssets();
     loadSettings();
-    populateFNInputs();
+    ingestUrlParams();
+    if (!hasValidPlan()) {
+      showNoPlanBlock();
+      return;
+    }
     computeAllMetrics();
     renderAll();
     bindEvents();
-    renderFreedomNumber();
+  }
+
+  // Read ?fn=...&rr=... handed off from the Freedom Number Calculator.
+  // URL params win over anything previously cached in localStorage so a
+  // recalculation always shows fresh numbers.
+  function ingestUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const fnParam = parseFloat(params.get('fn'));
+    const rrParam = parseFloat(params.get('rr'));
+    const yrsParam = parseFloat(params.get('years'));
+    const moParam = parseFloat(params.get('monthly'));
+    if (!isNaN(fnParam) && fnParam > 0) _settings.freedomNumber = fnParam;
+    if (!isNaN(rrParam) && rrParam > 0) _settings.requiredReturn = rrParam;
+    if (!isNaN(yrsParam) && yrsParam > 0) _settings.timeline = yrsParam;
+    if (!isNaN(moParam) && moParam >= 0) _settings.monthlyBudget = moParam;
+    debounceSave();
+  }
+
+  function hasValidPlan() {
+    return _settings.requiredReturn > 0 && _settings.freedomNumber > 0;
+  }
+
+  // Hide the dashboard and replace it with a redirect message back to the
+  // Freedom Number Calculator. Triggered when someone bookmarks the Explorer
+  // or refreshes after the URL params have been dropped.
+  function showNoPlanBlock() {
+    const root = document.querySelector('.container');
+    if (!root) return;
+    root.innerHTML = `
+      <div style="max-width:640px; margin:80px auto; padding:48px 36px; background:var(--card); border:1px solid var(--border); border-radius:16px; text-align:center;">
+        <div style="font-size:48px; margin-bottom:16px;">🧭</div>
+        <h1 style="color:var(--accent); font-size:24px; margin-bottom:14px;">Calculate your Freedom Number first</h1>
+        <p style="color:var(--muted); font-size:15px; line-height:1.6; margin-bottom:28px;">
+          Freedom Path Explorer needs your Freedom Number and required rate of return to score each asset.
+          Run the calculator first and you'll be sent here automatically with your numbers loaded.
+        </p>
+        <a href="https://jscott-62.github.io/catchup-freedom-number/"
+           style="display:inline-block; padding:14px 28px; background:var(--accent); color:#0f172a; font-weight:700; text-decoration:none; border-radius:10px; font-size:15px;">
+          → Calculate My Freedom Number
+        </a>
+      </div>`;
   }
 
   // --- Settings (localStorage) ---
@@ -2205,16 +1998,14 @@
         const parsed = JSON.parse(ev.target.result);
         // Accept either the wrapped payload {settings:{...}} or a bare settings object
         const incoming = (parsed && parsed.settings) ? parsed.settings : parsed;
-        if (!incoming || typeof incoming !== 'object' || (!incoming.fn && incoming.requiredReturn === undefined)) {
-          throw new Error('This does not look like a Catch-Up settings file.');
+        if (!incoming || typeof incoming !== 'object' || incoming.requiredReturn === undefined) {
+          throw new Error('This does not look like a Freedom Path settings file.');
         }
         if (!confirm('Replace your current data with this file?\n\nYour current data will be overwritten and cannot be recovered unless you exported it first.')) {
           return;
         }
         // Merge incoming over defaults so missing keys keep working
         Object.assign(_settings, incoming);
-        // Ensure nested fn object is fully populated
-        if (incoming.fn) Object.assign(_settings.fn, incoming.fn);
         saveSettings();
         // Re-run the same setup as page load
         _activeAssets = Object.keys(_data.assets);
@@ -2223,12 +2014,10 @@
             if (_data.assets[t] && !_activeAssets.includes(t)) _activeAssets.push(t);
           });
         }
-        populateFNInputs();
         computeAllMetrics();
         renderAll();
-        renderFreedomNumber();
         // Restore active tab
-        const activeTab = _settings.activeTab || 'freedom';
+        const activeTab = _settings.activeTab || 'overview';
         const tabBtn = document.querySelector('.tab-btn[data-tab="' + activeTab + '"]');
         if (tabBtn) tabBtn.click();
         showToast('Settings imported successfully.', 'success');
@@ -2252,307 +2041,6 @@
       showToast('Reset failed: ' + e.message, 'error');
     }
   }
-
-  // --- Freedom Number Builder ---
-  function populateFNInputs() {
-    const fn = _settings.fn;
-    document.getElementById('expMonthly').value = fn.expMonthly;
-    document.getElementById('expHousing').value = fn.expHousing;
-    document.getElementById('expFood').value = fn.expFood;
-    document.getElementById('expHealth').value = fn.expHealth;
-    document.getElementById('expTransport').value = fn.expTransport;
-    document.getElementById('expTravel').value = fn.expTravel;
-    document.getElementById('expOther').value = fn.expOther;
-    document.getElementById('expLifestyle').value = fn.expLifestyle.toFixed(2);
-    document.getElementById('incSocSec').value = fn.incSocSec;
-    document.getElementById('incSkipSS').checked = fn.incSkipSS;
-    document.getElementById('incPension').value = fn.incPension;
-    document.getElementById('incRental').value = fn.incRental;
-    document.getElementById('incPartTime').value = fn.incPartTime;
-    document.getElementById('wdRate').value = fn.wdRate.toFixed(2);
-    document.getElementById('spSavings').value = fn.spSavings;
-    document.getElementById('spMonthly').value = fn.spMonthly;
-    document.getElementById('spYears').value = fn.spYears;
-    const inflSliderEl = document.getElementById('inflationSlider');
-    const inflValEl = document.getElementById('inflationValue');
-    const safeInfl = (typeof fn.inflationRate === 'number' && !isNaN(fn.inflationRate)) ? fn.inflationRate : 3;
-    if (inflSliderEl) inflSliderEl.value = safeInfl;
-    if (inflValEl) inflValEl.textContent = safeInfl + '%';
-
-    // Apply mode toggle
-    if (fn.expMode === 'detailed') {
-      document.getElementById('expToggleSimple').classList.remove('active');
-      document.getElementById('expToggleDetailed').classList.add('active');
-      document.getElementById('expSimpleMode').style.display = 'none';
-      document.getElementById('expDetailedMode').style.display = 'block';
-    }
-  }
-
-  function calcFreedomNumber() {
-    const fn = _settings.fn;
-
-    // Calculate monthly expenses based on mode
-    let monthlyExpenses;
-    if (fn.expMode === 'detailed') {
-      monthlyExpenses = (fn.expHousing || 0) + (fn.expFood || 0) + (fn.expHealth || 0)
-        + (fn.expTransport || 0) + (fn.expTravel || 0) + (fn.expOther || 0);
-    } else {
-      monthlyExpenses = fn.expMonthly || 0;
-    }
-
-    // Apply lifestyle factor
-    const adjustedMonthly = monthlyExpenses * (fn.expLifestyle || 1);
-    const annualExpenses = adjustedMonthly * 12;
-
-    // Sum guaranteed income (zero out SS if skipping)
-    const monthlySS = fn.incSkipSS ? 0 : (fn.incSocSec || 0);
-    const monthlyIncome = monthlySS + (fn.incPension || 0) + (fn.incRental || 0) + (fn.incPartTime || 0);
-    const annualIncome = monthlyIncome * 12;
-
-    // Gap that savings must cover
-    const annualGap = Math.max(0, annualExpenses - annualIncome);
-
-    // Freedom Number = gap / withdrawal rate
-    const freedomNumber = annualGap / (fn.wdRate || 0.04);
-
-    return {
-      monthlyExpenses,
-      adjustedMonthly,
-      annualExpenses,
-      monthlySS,
-      monthlyIncome,
-      annualIncome,
-      annualGap,
-      freedomNumber
-    };
-  }
-
-  function calcRequiredReturnFromFN(freedomNumber, startingBalance, monthlyBudget, years) {
-    if (freedomNumber <= 0 || years <= 0) return 0;
-    if (startingBalance >= freedomNumber) return 0; // already there
-    if (monthlyBudget <= 0 && startingBalance <= 0) return 1; // impossible, max out
-
-    // Binary search for required annual return
-    let low = 0, high = 1; // 0% to 100%
-    for (let i = 0; i < 60; i++) {
-      const mid = (low + high) / 2;
-      let balance = startingBalance;
-      const annual = monthlyBudget * 12;
-      for (let y = 0; y < years; y++) {
-        balance = balance + annual + (balance + annual) * mid;
-      }
-      if (Math.abs(balance - freedomNumber) / freedomNumber < 0.001) {
-        return mid;
-      }
-      if (balance < freedomNumber) low = mid;
-      else high = mid;
-    }
-    return (low + high) / 2;
-  }
-
-  function renderFreedomNumber() {
-    const result = calcFreedomNumber();
-    _settings.fn.calculatedFN = result.freedomNumber;
-
-    // Inflation-adjusted future target
-    const _fnLocal = _settings.fn;
-    const inflPct = (typeof _fnLocal.inflationRate === 'number' && !isNaN(_fnLocal.inflationRate)) ? _fnLocal.inflationRate : 3;
-    const years = _fnLocal.spYears || 0;
-    const inflFactor = Math.pow(1 + inflPct / 100, years);
-    const freedomNumberFuture = result.freedomNumber * inflFactor;
-
-    const valueEl = document.getElementById('fnValue');
-    const headlineLabelEl = document.getElementById('fnHeadlineLabel');
-    const todayRefEl = document.getElementById('fnTodayRef');
-    const breakdownEl = document.getElementById('fnBreakdown');
-    const mathEl = document.getElementById('fnMath');
-
-    if (!valueEl) return;
-
-    // Headline depends on whether user has opted into inflation view
-    const showInflation = !!_settings.fn.showInflation && result.freedomNumber > 0 && inflPct >= 0 && years > 0;
-    const panelEl = document.getElementById('fnResultPanel');
-    if (panelEl) panelEl.classList.toggle('hide-inflation', !showInflation);
-
-    if (showInflation) {
-      valueEl.textContent = '$' + freedomNumberFuture.toLocaleString(undefined, { maximumFractionDigits: 0 });
-      if (headlineLabelEl) headlineLabelEl.textContent = 'Your Freedom Number in ' + years + ' year' + (years !== 1 ? 's' : '') + ' (at ' + inflPct + '% inflation)';
-      if (todayRefEl) {
-        todayRefEl.textContent = '≈ $' + result.freedomNumber.toLocaleString(undefined, { maximumFractionDigits: 0 }) + ' in today\'s purchasing power';
-        todayRefEl.style.display = 'block';
-      }
-    } else {
-      valueEl.textContent = '$' + result.freedomNumber.toLocaleString(undefined, { maximumFractionDigits: 0 });
-      if (headlineLabelEl) headlineLabelEl.textContent = 'Your Freedom Number';
-      if (todayRefEl) todayRefEl.style.display = 'none';
-    }
-
-    // Toggle button label
-    const togBtn = document.getElementById('inflationToggleBtn');
-    const togTxt = document.getElementById('inflationToggleText');
-    if (togBtn && togTxt) {
-      if (_settings.fn.showInflation) {
-        togBtn.classList.add('active');
-        togTxt.textContent = 'Hide Inflation Impact';
-      } else {
-        togBtn.classList.remove('active');
-        togTxt.textContent = 'Show Inflation Impact →';
-      }
-    }
-
-    // Update the "Total Monthly" display in detailed mode
-    const totalEl = document.getElementById('expDetailedTotalValue');
-    if (totalEl) {
-      totalEl.textContent = '$' + result.monthlyExpenses.toLocaleString(undefined, { maximumFractionDigits: 0 });
-    }
-
-    const wdRatePct = (_settings.fn.wdRate * 100).toFixed(0);
-    if (result.freedomNumber === 0) {
-      breakdownEl.innerHTML = 'Your guaranteed income covers your expenses. You technically don\'t need savings to retire, though a cushion is always smart.';
-    } else {
-      breakdownEl.innerHTML = `Based on <strong>$${result.annualExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}/year</strong> in retirement expenses, <strong>$${result.annualIncome.toLocaleString(undefined, {maximumFractionDigits: 0})}/year</strong> in guaranteed income, and a <strong>${wdRatePct}% withdrawal rate</strong>.`;
-    }
-
-    // Update math breakdown
-    mathEl.innerHTML = `
-      <div class="fn-math-row"><span>Current monthly expenses</span><span>$${result.monthlyExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-      <div class="fn-math-row"><span>× Retirement adjustment</span><span>× ${(_settings.fn.expLifestyle * 100).toFixed(0)}%</span></div>
-      <div class="fn-math-row"><span>Projected retirement monthly</span><span>$${result.adjustedMonthly.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-      <div class="fn-math-row"><span>× 12 = Annual retirement expenses</span><span>$${result.annualExpenses.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-      <div class="fn-math-row"><span style="color:var(--green)">- Annual guaranteed income</span><span style="color:var(--green)">-$${result.annualIncome.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-      <div class="fn-math-row"><span>Annual gap (what savings must cover)</span><span>$${result.annualGap.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-      <div class="fn-math-row"><span>÷ Withdrawal rate</span><span>÷ ${wdRatePct}%</span></div>
-      <div class="fn-math-row fn-math-total"><span>= Freedom Number${showInflation ? ' (today)' : ''}</span><span>$${result.freedomNumber.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>
-      ${showInflation ? `
-      <div class="fn-math-row"><span>x Inflation over ${years}y at ${inflPct}%</span><span>x ${inflFactor.toFixed(2)}</span></div>
-      <div class="fn-math-row fn-math-total"><span>= Freedom Number (future dollars)</span><span>$${freedomNumberFuture.toLocaleString(undefined, {maximumFractionDigits: 0})}</span></div>` : ''}
-    `;
-
-    // Required return targets future-nominal only when user opted into inflation view
-    const fn = _settings.fn;
-    const targetFN = showInflation ? freedomNumberFuture : result.freedomNumber;
-    const rrDecimal = calcRequiredReturnFromFN(
-      targetFN,
-      fn.spSavings,
-      fn.spMonthly,
-      fn.spYears
-    );
-    const rrPct = Math.round(rrDecimal * 100);
-    _settings.fn.calculatedRR = rrPct;
-    const realReturnPct = Math.max(0, rrPct - inflPct);
-
-    // Section 3 inline display + co-headline in result panel
-    const rrEl = document.getElementById('spRequiredReturn');
-    const rrHintEl = document.getElementById('spRequiredReturnHint');
-    const rrBigEl = document.getElementById('rrHeadlineValue');
-    const rrBigRealEl = document.getElementById('rrHeadlineReal');
-    const rrBigZoneEl = document.getElementById('rrHeadlineZone');
-    const rrBigHintEl = document.getElementById('rrHeadlineHint');
-
-    function setRR(text, color, realStr, zoneLabel, hintHtml, zoneClass) {
-      if (rrEl) { rrEl.textContent = text; rrEl.style.color = color; }
-      if (rrHintEl) rrHintEl.innerHTML = hintHtml;
-      if (rrBigEl) {
-        rrBigEl.textContent = text;
-        rrBigEl.className = 'rr-headline-value' + (zoneClass ? ' ' + zoneClass : '');
-      }
-      if (rrBigRealEl) rrBigRealEl.textContent = realStr || '';
-      if (rrBigZoneEl) {
-        rrBigZoneEl.textContent = zoneLabel || '';
-        rrBigZoneEl.className = 'rr-headline-zone' + (zoneClass ? ' ' + zoneClass : '');
-      }
-      if (rrBigHintEl) rrBigHintEl.innerHTML = hintHtml;
-    }
-
-    // Asset-class tier mapping. Each tier is a signpost to which kind of
-    // asset historically could have delivered that return, NOT an alarm.
-    function getRRTier(pct) {
-      if (pct <= 12) return {
-        zoneClass: 'index-zone',
-        zoneLabel: 'Index-fund territory',
-        color: 'var(--blue)',
-        action: 'A broad S&P 500 or total-market index fund has historically delivered returns in this range. See the Overview and Compare tabs.'
-      };
-      if (pct <= 22) return {
-        zoneClass: 'growth-zone',
-        zoneLabel: 'Growth-stock territory',
-        color: 'var(--accent)',
-        action: 'Traditional indexes alone are unlikely to reach this. Historically this required tilting toward growth-stock ETFs like QQQ or concentrated bets on tech leaders. See the Overview tab.'
-      };
-      return {
-        zoneClass: 'concentrated-zone',
-        zoneLabel: 'Bitcoin / concentrated bet territory',
-        color: '#fb923c',
-        action: 'Historically only assets like Bitcoin or concentrated positions in mega-winners like NVDA have delivered returns this high. Open the Overview tab to see which assets cleared this bar.'
-      };
-    }
-
-    if (result.freedomNumber === 0) {
-      setRR('...', 'var(--accent)', '', '', 'Enter your numbers above to see your required return.', null);
-    } else if (fn.spSavings >= targetFN) {
-      setRR('0%', 'var(--green)', '', 'Already there',
-        `You already have <strong>${'$' + fn.spSavings.toLocaleString()}</strong> saved, which meets your Freedom Number of <strong>$${targetFN.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>.`,
-        'index-zone');
-    } else if (rrPct >= 100) {
-      setRR('100%+', '#fb923c', '', 'Out of range',
-        `No realistic asset delivers this. Consider more years, higher monthly investment${showInflation ? ', lower inflation assumption' : ''}, or a lower Freedom Number target.`,
-        'concentrated-zone');
-    } else {
-      const tier = getRRTier(rrPct);
-      const realStr = showInflation ? '(' + realReturnPct + '% after inflation)' : '';
-      const hint = showInflation
-        ? `Starting with <strong>$${fn.spSavings.toLocaleString()}</strong> and adding <strong>$${fn.spMonthly.toLocaleString()}/mo</strong> for <strong>${fn.spYears} years</strong>, you need <strong>${rrPct}%</strong> annually to reach <strong>$${targetFN.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>. That is <strong>${realReturnPct}% after-inflation growth</strong> in your real buying power. ${tier.action}`
-        : `Starting with <strong>$${fn.spSavings.toLocaleString()}</strong> and adding <strong>$${fn.spMonthly.toLocaleString()}/mo</strong> for <strong>${fn.spYears} years</strong>, you need <strong>${rrPct}%</strong> annually to reach <strong>$${targetFN.toLocaleString(undefined,{maximumFractionDigits:0})}</strong>. ${tier.action}`;
-      setRR(rrPct + '%', tier.color, realStr, tier.zoneLabel, hint, tier.zoneClass);
-    }
-  }
-
-  function onFNInput() {
-    // Read all inputs into _settings.fn
-    const fn = _settings.fn;
-    fn.expMonthly = parseFloat(document.getElementById('expMonthly').value) || 0;
-    fn.expHousing = parseFloat(document.getElementById('expHousing').value) || 0;
-    fn.expFood = parseFloat(document.getElementById('expFood').value) || 0;
-    fn.expHealth = parseFloat(document.getElementById('expHealth').value) || 0;
-    fn.expTransport = parseFloat(document.getElementById('expTransport').value) || 0;
-    fn.expTravel = parseFloat(document.getElementById('expTravel').value) || 0;
-    fn.expOther = parseFloat(document.getElementById('expOther').value) || 0;
-    fn.expLifestyle = parseFloat(document.getElementById('expLifestyle').value) || 1;
-    fn.incSocSec = parseFloat(document.getElementById('incSocSec').value) || 0;
-    fn.incSkipSS = document.getElementById('incSkipSS').checked;
-    fn.incPension = parseFloat(document.getElementById('incPension').value) || 0;
-    fn.incRental = parseFloat(document.getElementById('incRental').value) || 0;
-    fn.incPartTime = parseFloat(document.getElementById('incPartTime').value) || 0;
-    fn.wdRate = parseFloat(document.getElementById('wdRate').value) || 0.04;
-    fn.spSavings = parseFloat(document.getElementById('spSavings').value) || 0;
-    fn.spMonthly = parseFloat(document.getElementById('spMonthly').value) || 0;
-    fn.spYears = parseInt(document.getElementById('spYears').value) || 1;
-
-    renderFreedomNumber();
-    debounceSave();
-  }
-
-  function useFreedomNumberInPlan() {
-    const fn = _settings.fn;
-    if (fn.calculatedFN <= 0) {
-      alert('Calculate your Freedom Number first by filling in the expense and income fields.');
-      return;
-    }
-
-    // Push the Section 3 values and computed Required Return into the main settings
-    _settings.requiredReturn = fn.calculatedRR || 15;
-    _settings.timeline = fn.spYears || 15;
-    _settings.monthlyBudget = fn.spMonthly || 500;
-
-    computeAllMetrics();
-    renderAll();
-    debounceSave();
-
-    // Switch to Overview tab
-    const btn = document.querySelector('.tab-btn[data-tab="overview"]');
-    if (btn) btn.click();
-  }
-
   // --- Financial Calculations ---
   function calcAnnualizedReturn(prices, years) {
     if (!prices || prices.length < 2) return null;
@@ -2878,17 +2366,11 @@
     const bar = document.getElementById('planSummary');
     const text = document.getElementById('planSummaryText');
     if (!bar || !text) return;
-
-    // Show on every tab except the Freedom Number tab
-    if (_settings.activeTab === 'freedom') {
-      bar.classList.remove('show');
-      return;
-    }
     bar.classList.add('show');
 
-    const fn = _settings.fn || {};
-    if (fn.calculatedFN > 0) {
-      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong> to reach <strong>$${fn.calculatedFN.toLocaleString()}</strong>.`;
+    const fn = _settings.freedomNumber || 0;
+    if (fn > 0) {
+      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong> to reach <strong>$${fn.toLocaleString()}</strong>.`;
     } else {
       text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong>.`;
     }
@@ -3889,13 +3371,6 @@
       });
     });
 
-    // Plan summary link: clicking it switches back to the Freedom Number tab
-    document.getElementById('planSummaryLink').addEventListener('click', e => {
-      e.preventDefault();
-      const freedomBtn = document.querySelector('.tab-btn[data-tab="freedom"]');
-      if (freedomBtn) freedomBtn.click();
-    });
-
     // Selection bar buttons
     document.getElementById('selAllCrypto').addEventListener('click', () => {
       _activeAssets.forEach(k => {
@@ -3931,75 +3406,6 @@
       });
     });
 
-    // Freedom Number Builder inputs
-    ['expMonthly','expHousing','expFood','expHealth','expTransport','expTravel','expOther','expLifestyle','incSocSec','incPension','incRental','incPartTime','wdRate','spSavings','spMonthly','spYears'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.addEventListener('input', onFNInput);
-      if (el && el.tagName === 'SELECT') el.addEventListener('change', onFNInput);
-    });
-    document.getElementById('incSkipSS').addEventListener('change', onFNInput);
-
-    // Inflation slider — live-updates the value label and re-renders
-    const inflSlider = document.getElementById('inflationSlider');
-    if (inflSlider) {
-      inflSlider.addEventListener('input', () => {
-        const v = parseFloat(inflSlider.value);
-        _settings.fn.inflationRate = isNaN(v) ? 3 : v;
-        const inflValEl = document.getElementById('inflationValue');
-        if (inflValEl) inflValEl.textContent = _settings.fn.inflationRate + '%';
-        renderFreedomNumber();
-        debounceSave();
-      });
-    }
-
-    // Show/hide inflation impact toggle
-    const inflTogBtn = document.getElementById('inflationToggleBtn');
-    if (inflTogBtn) {
-      inflTogBtn.addEventListener('click', () => {
-        _settings.fn.showInflation = !_settings.fn.showInflation;
-        renderFreedomNumber();
-        debounceSave();
-      });
-    }
-
-    // Inflation info icon — toggles the explainer
-    const inflInfoBtn = document.getElementById('inflationInfoBtn');
-    const inflInfoExp = document.getElementById('inflationInfoExplainer');
-    if (inflInfoBtn && inflInfoExp) {
-      inflInfoBtn.addEventListener('click', () => {
-        const open = inflInfoExp.classList.toggle('show');
-        inflInfoBtn.classList.toggle('active', open);
-      });
-    }
-
-    // FN mode toggle
-    document.getElementById('expToggleSimple').addEventListener('click', () => {
-      _settings.fn.expMode = 'simple';
-      document.getElementById('expToggleSimple').classList.add('active');
-      document.getElementById('expToggleDetailed').classList.remove('active');
-      document.getElementById('expSimpleMode').style.display = 'block';
-      document.getElementById('expDetailedMode').style.display = 'none';
-      renderFreedomNumber();
-      debounceSave();
-    });
-    document.getElementById('expToggleDetailed').addEventListener('click', () => {
-      _settings.fn.expMode = 'detailed';
-      document.getElementById('expToggleSimple').classList.remove('active');
-      document.getElementById('expToggleDetailed').classList.add('active');
-      document.getElementById('expSimpleMode').style.display = 'none';
-      document.getElementById('expDetailedMode').style.display = 'block';
-      renderFreedomNumber();
-      debounceSave();
-    });
-
-    // FN action buttons
-    document.getElementById('fnUseInPlan').addEventListener('click', useFreedomNumberInPlan);
-    document.getElementById('fnShowMath').addEventListener('click', () => {
-      const mathEl = document.getElementById('fnMath');
-      mathEl.classList.toggle('show');
-      document.getElementById('fnShowMath').textContent = mathEl.classList.contains('show') ? 'Hide the Math' : 'Show the Math';
-    });
-
     // Custom ticker
     document.getElementById('addTickerBtn').addEventListener('click', addCustomTicker);
     document.getElementById('customTickerInput').addEventListener('keypress', e => {
@@ -4016,12 +3422,11 @@
       }, 200);
     });
 
-    // Restore active tab (default is 'freedom').
-    // If a previous version stored a removed tab (myportfolio/portfolio/holding/selling),
-    // fall back to 'freedom' so nothing breaks.
-    const VALID_TABS = ['freedom', 'overview', 'compare', 'dca'];
-    if (!VALID_TABS.includes(_settings.activeTab)) _settings.activeTab = 'freedom';
-    if (_settings.activeTab && _settings.activeTab !== 'freedom') {
+    // Restore active tab (default is 'overview' since the FN tab was removed).
+    // If a previous version stored a removed tab, fall back to 'overview'.
+    const VALID_TABS = ['overview', 'compare', 'dca'];
+    if (!VALID_TABS.includes(_settings.activeTab)) _settings.activeTab = 'overview';
+    if (_settings.activeTab && _settings.activeTab !== 'overview') {
       const btn = document.querySelector(`.tab-btn[data-tab="${_settings.activeTab}"]`);
       if (btn) {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
