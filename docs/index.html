@@ -1768,10 +1768,27 @@
 
   <!-- TAB: COMPARE -->
   <div class="tab-content" id="tab-compare">
+    <!-- Universe map: visible even when 0 assets are selected -->
+    <div class="card chart-container universe-chart">
+      <div class="chart-header">
+        <span class="chart-title">Risk vs Return Map — Every Asset at a Glance</span>
+        <div class="timeframe-btns">
+          <button class="timeframe-btn" data-years="1">1Y</button>
+          <button class="timeframe-btn" data-years="3">3Y</button>
+          <button class="timeframe-btn" data-years="5">5Y</button>
+          <button class="timeframe-btn active" data-years="10">10Y</button>
+        </div>
+      </div>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.55;">
+        Higher up = more growth. Further right = smaller worst-case drop. The <strong style="color:var(--accent)">shaded sweet spot</strong> shows assets that hit your required return AND kept their worst drawdown above &minus;50%. Your selected assets show larger; the rest are the universe for context.
+      </p>
+      <canvas id="riskReturnChart" height="420"></canvas>
+    </div>
+
     <div class="empty-state" id="compareEmptyState" style="display:none;">
       <div class="empty-state-icon">📊</div>
-      <div class="empty-state-title">Pick assets to compare</div>
-      <div class="empty-state-desc">Head over to the Overview tab and check the box next to any assets you want to see side-by-side. Their returns, volatility, and drawdowns will appear here.</div>
+      <div class="empty-state-title">Pick assets for the detailed comparisons</div>
+      <div class="empty-state-desc">The map above shows every asset at once. Pick a few on the Overview tab to see their returns, bumpy-ride, and drawdown details side-by-side below.</div>
       <button class="empty-state-btn" data-goto-overview>→ Go to Overview</button>
     </div>
     <div class="card chart-container">
@@ -2579,8 +2596,10 @@
     const dcaBanner = document.getElementById('dcaEmptyState');
     if (compareBanner) compareBanner.style.display = isEmpty ? 'block' : 'none';
     if (dcaBanner) dcaBanner.style.display = isEmpty ? 'block' : 'none';
-    // Hide the chart/table cards when empty so the banner is the focal point
-    document.querySelectorAll('#tab-compare .card.chart-container, #tab-dca .card.chart-container').forEach(el => {
+    // Hide the chart/table cards when empty so the banner is the focal point.
+    // The universe-chart (Risk vs Return scatter) is the exception — it shows
+    // the whole universe regardless of selection, so it stays visible.
+    document.querySelectorAll('#tab-compare .card.chart-container:not(.universe-chart), #tab-dca .card.chart-container').forEach(el => {
       el.style.display = isEmpty ? 'none' : '';
     });
   }
@@ -2663,8 +2682,170 @@
     });
   }
 
+  // Universe-wide Risk vs Return scatter. Plots every asset at once so the
+  // user can spot clusters (semiconductor stocks bunched together, etc.) and
+  // find the sweet spot — assets that hit their required return without an
+  // intolerable max drawdown. Always renders, regardless of selection.
+  function renderRiskReturnChart() {
+    const canvas = document.getElementById('riskReturnChart');
+    if (!canvas) return;
+    const { ctx, w, h } = setupCanvas(canvas);
+    ctx.clearRect(0, 0, w, h);
+
+    const margin = { top: 24, right: 28, bottom: 56, left: 64 };
+    const plotW = w - margin.left - margin.right;
+    const plotH = h - margin.top - margin.bottom;
+
+    const years = _settings.compareTimeframe || 10;
+    const months = years * 12;
+
+    // For each active asset, compute CAGR and worst drawdown over the chosen
+    // timeframe. Skip assets without enough history for the window.
+    const points = [];
+    _activeAssets.forEach(key => {
+      const asset = _data.assets[key];
+      if (!asset) return;
+      const all = asset.monthlyPrices;
+      if (!all || all.length < 13) return;
+      const startIdx = Math.max(0, all.length - months);
+      const prices = all.slice(startIdx);
+      if (prices.length < 13) return;
+      const cagr = calcAnnualizedReturn(prices, years) ||
+                   calcAnnualizedReturn(prices, Math.floor((prices.length - 1) / 12));
+      if (cagr === null) return;
+      const dd = calcMaxDrawdown(prices).drawdown;
+      points.push({ key, cagr, dd, color: asset.color, selected: _settings.selectedAssets.includes(key) });
+    });
+
+    if (points.length === 0) {
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '14px -apple-system, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('No data available for the selected timeframe.', w / 2, h / 2);
+      return;
+    }
+
+    // Axis scales. Y = CAGR, X = drawdown.
+    // Pad ranges so points don't sit on the edges; include the required-return
+    // line so it's always visible even if no asset reaches it.
+    const requiredReturn = Math.max(0, _settings.requiredReturn || 0);
+    const cagrValues = points.map(p => p.cagr).concat([requiredReturn]);
+    let yMin = Math.min(...cagrValues, 0);
+    let yMax = Math.max(...cagrValues, requiredReturn + 5);
+    const yPad = (yMax - yMin) * 0.10;
+    yMin -= yPad;
+    yMax += yPad;
+    if (yMax - yMin < 10) yMax = yMin + 10;
+
+    const ddValues = points.map(p => p.dd);
+    let xMin = Math.min(...ddValues, -10);
+    const xMax = 0;
+    xMin = Math.min(xMin * 1.05, -10);
+
+    const xScale = (v) => margin.left + ((v - xMin) / (xMax - xMin)) * plotW;
+    const yScale = (v) => margin.top + (1 - (v - yMin) / (yMax - yMin)) * plotH;
+
+    // Sweet-spot box: drawdown shallower than -50% AND CAGR >= required return.
+    const sweetXLeft = xScale(Math.max(-50, xMin));
+    const sweetXRight = xScale(0);
+    const sweetYTop = yScale(yMax);
+    const sweetYBot = yScale(Math.max(requiredReturn, yMin));
+    ctx.fillStyle = 'rgba(34, 197, 94, 0.10)';
+    ctx.fillRect(sweetXLeft, sweetYTop, sweetXRight - sweetXLeft, sweetYBot - sweetYTop);
+    ctx.strokeStyle = 'rgba(34, 197, 94, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.setLineDash([4, 4]);
+    ctx.strokeRect(sweetXLeft, sweetYTop, sweetXRight - sweetXLeft, sweetYBot - sweetYTop);
+    ctx.setLineDash([]);
+
+    // Gridlines + axis labels
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 0.5;
+    ctx.font = '11px -apple-system, sans-serif';
+    ctx.fillStyle = '#94a3b8';
+
+    // Horizontal gridlines (CAGR)
+    const ySteps = 5;
+    for (let i = 0; i <= ySteps; i++) {
+      const val = yMin + (yMax - yMin) * (i / ySteps);
+      const y = yScale(val);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, y);
+      ctx.lineTo(w - margin.right, y);
+      ctx.stroke();
+      ctx.textAlign = 'right';
+      ctx.fillText(val.toFixed(0) + '%', margin.left - 8, y + 4);
+    }
+    // Vertical gridlines (drawdown)
+    const xSteps = 5;
+    for (let i = 0; i <= xSteps; i++) {
+      const val = xMin + (xMax - xMin) * (i / xSteps);
+      const x = xScale(val);
+      ctx.beginPath();
+      ctx.moveTo(x, margin.top);
+      ctx.lineTo(x, h - margin.bottom);
+      ctx.stroke();
+      ctx.textAlign = 'center';
+      ctx.fillText(val.toFixed(0) + '%', x, h - margin.bottom + 16);
+    }
+
+    // Required-return reference line
+    if (requiredReturn > yMin && requiredReturn < yMax) {
+      const ry = yScale(requiredReturn);
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(margin.left, ry);
+      ctx.lineTo(w - margin.right, ry);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#f59e0b';
+      ctx.font = 'bold 11px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText('Your target: ' + requiredReturn + '%', margin.left + 6, ry - 5);
+    }
+
+    // Axis titles
+    ctx.fillStyle = '#94a3b8';
+    ctx.font = '12px -apple-system, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('← deeper drop          Worst Drawdown          shallower drop →', margin.left + plotW / 2, h - 6);
+    ctx.save();
+    ctx.translate(14, margin.top + plotH / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillText('Annualized Return (' + years + 'y)', 0, 0);
+    ctx.restore();
+
+    // Draw points. Selected = bigger + opaque + bold ticker. Unselected = small + faded.
+    // Two passes so selected sit on top.
+    const drawPoint = (p) => {
+      const px = xScale(p.dd);
+      const py = yScale(p.cagr);
+      const r = p.selected ? 7 : 4.5;
+      ctx.globalAlpha = p.selected ? 1 : 0.55;
+      ctx.fillStyle = p.color || '#94a3b8';
+      ctx.beginPath();
+      ctx.arc(px, py, r, 0, Math.PI * 2);
+      ctx.fill();
+      if (p.selected) {
+        ctx.strokeStyle = '#e2e8f0';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = p.selected ? '#e2e8f0' : '#94a3b8';
+      ctx.font = p.selected ? 'bold 11px -apple-system, sans-serif' : '10px -apple-system, sans-serif';
+      ctx.textAlign = 'left';
+      ctx.fillText(p.key, px + r + 3, py + 3);
+    };
+    points.filter(p => !p.selected).forEach(drawPoint);
+    points.filter(p => p.selected).forEach(drawPoint);
+  }
+
   function renderCompareCharts() {
     updateEmptyStates(getSelectedAssets().length === 0);
+    renderRiskReturnChart();
     renderReturnsChart();
     renderVolatilityChart();
     renderDrawdownChart();
