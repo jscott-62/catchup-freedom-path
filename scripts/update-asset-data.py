@@ -47,6 +47,20 @@ DEFAULT_ASSETS = {
         "color": "#eab308",
         "source": "yahoo"
     },
+    "SLV": {
+        "ticker": "SLV",
+        "name": "Silver (SLV ETF)",
+        "category": "Commodity",
+        "color": "#cbd5e1",
+        "source": "yahoo"
+    },
+    "CPER": {
+        "ticker": "CPER",
+        "name": "Copper (CPER ETF)",
+        "category": "Commodity",
+        "color": "#b45309",
+        "source": "yahoo"
+    },
     "SPY": {
         "ticker": "SPY",
         "name": "S&P 500 (SPY)",
