@@ -2489,9 +2489,9 @@
       row.innerHTML = `
         <div class="asset-row-summary">
           <input type="checkbox" class="asset-checkbox" data-asset="${key}" ${isSelected ? 'checked' : ''} title="Select for comparison">
-          <div class="asset-row-name">
+          <div class="asset-row-name" title="${asset.name}">
             <div class="name" style="color:${asset.color}">${asset.name}</div>
-            <div class="ticker">${asset.ticker}</div>
+            <div class="ticker" title="${asset.name}">${asset.ticker}</div>
           </div>
           <span class="asset-row-category" style="background:${catColor}20;color:${catColor}">${asset.category}</span>
           <div class="asset-row-price">$${formatNum(m.currentPrice)}</div>
@@ -2626,6 +2626,63 @@
     return { ctx, w: rect.width, h: rect.height };
   }
 
+  // --- Canvas tooltip system ---
+  // Floating tooltip + per-canvas hit-region registry. Chart render functions
+  // call clearCanvasHotspots(canvas) once, then addCanvasHotspot(...) after
+  // drawing each ticker label / bar / dot they want hoverable. Hit testing
+  // happens in CSS pixel coords — matches the coordinate system the chart
+  // draws in after setupCanvas applies its DPR scale.
+  let _canvasTooltipEl = null;
+  const _canvasHotspots = new WeakMap();
+
+  function getCanvasTooltip() {
+    if (_canvasTooltipEl) return _canvasTooltipEl;
+    _canvasTooltipEl = document.createElement('div');
+    _canvasTooltipEl.style.cssText =
+      'position:fixed;pointer-events:none;background:#1e293b;color:#e2e8f0;' +
+      'border:1px solid #475569;border-radius:6px;padding:6px 10px;' +
+      'font-size:12px;font-weight:600;z-index:9999;display:none;' +
+      'box-shadow:0 6px 16px rgba(0,0,0,0.55);white-space:nowrap;';
+    document.body.appendChild(_canvasTooltipEl);
+    return _canvasTooltipEl;
+  }
+
+  function clearCanvasHotspots(canvas) {
+    if (!canvas) return;
+    _canvasHotspots.set(canvas, []);
+    if (!canvas.__tooltipBound) {
+      canvas.addEventListener('mousemove', onCanvasHover);
+      canvas.addEventListener('mouseleave', () => { getCanvasTooltip().style.display = 'none'; });
+      canvas.__tooltipBound = true;
+    }
+  }
+
+  function addCanvasHotspot(canvas, x, y, w, h, text) {
+    const list = _canvasHotspots.get(canvas);
+    if (list) list.push({ x: x, y: y, w: w, h: h, text: text });
+  }
+
+  function onCanvasHover(e) {
+    const canvas = e.currentTarget;
+    const rect = canvas.getBoundingClientRect();
+    const cx = e.clientX - rect.left;
+    const cy = e.clientY - rect.top;
+    const list = _canvasHotspots.get(canvas) || [];
+    // Iterate in reverse so the most-recently-drawn (topmost) hotspot wins
+    for (let i = list.length - 1; i >= 0; i--) {
+      const h = list[i];
+      if (cx >= h.x && cx <= h.x + h.w && cy >= h.y && cy <= h.y + h.h) {
+        const tip = getCanvasTooltip();
+        tip.textContent = h.text;
+        tip.style.display = 'block';
+        tip.style.left = (e.clientX + 14) + 'px';
+        tip.style.top = (e.clientY + 14) + 'px';
+        return;
+      }
+    }
+    getCanvasTooltip().style.display = 'none';
+  }
+
   // Shared helper: draw end-of-line labels with guaranteed spacing
   function drawEndLabels(ctx, labels, lineEndX, margin) {
     // labels = [{y: natural Y, text: 'BTC $148K', color: '#f59e0b'}, ...]
@@ -2679,6 +2736,12 @@
       ctx.fillStyle = l.color;
       ctx.textAlign = 'left';
       ctx.fillText(l.text, lineEndX + 9, l.y + 3);
+
+      // Tooltip — l.key is the asset key if the caller passed it
+      if (l.key) {
+        const tipText = (_data.assets[l.key] && _data.assets[l.key].name) || l.key;
+        addCanvasHotspot(ctx.canvas, lineEndX + 5, l.y - 10, textW + 8, 17, tipText);
+      }
     });
   }
 
@@ -2715,6 +2778,7 @@
     if (!canvas) return;
     const { ctx, w, h } = setupCanvas(canvas);
     ctx.clearRect(0, 0, w, h);
+    clearCanvasHotspots(canvas);
 
     const margin = { top: 24, right: 28, bottom: 56, left: 64 };
     const plotW = w - margin.left - margin.right;
@@ -2879,6 +2943,11 @@
       const labelX = (wouldHitPill || wouldOverflowRight) ? px - r - 3 - labelW : rightX;
       ctx.textAlign = 'left';
       ctx.fillText(p.key, labelX, labelY);
+
+      // Tooltip targets: both the dot itself and its ticker label
+      const tipText = (_data.assets[p.key] && _data.assets[p.key].name) || p.key;
+      addCanvasHotspot(canvas, px - r - 2, py - r - 2, r * 2 + 4, r * 2 + 4, tipText);
+      addCanvasHotspot(canvas, labelX - 1, labelY - 11, labelW + 2, 14, tipText);
     };
     points.filter(p => !p.selected).forEach(drawPoint);
     points.filter(p => p.selected).forEach(drawPoint);
@@ -2901,6 +2970,7 @@
     const canvas = document.getElementById('returnsChart');
     if (!canvas) return;
     const { ctx, w, h } = setupCanvas(canvas);
+    clearCanvasHotspots(canvas);
     const years = _settings.compareTimeframe || 10;
 
     const selected = getSelectedAssets();
@@ -2983,6 +3053,13 @@
       ctx.fillStyle = '#94a3b8';
       ctx.font = '12px -apple-system, sans-serif';
       ctx.fillText(key, x + barWidth / 2, h - margin.bottom + 20);
+
+      // Hover: tooltip covers the bar column AND its ticker label below
+      const tipText = (asset && asset.name) || key;
+      const top = Math.min(valY, zeroY) - 2;
+      const bot = Math.max(valY, zeroY) + 2;
+      addCanvasHotspot(canvas, x - 2, top, barWidth + 4, bot - top, tipText);
+      addCanvasHotspot(canvas, x - 4, h - margin.bottom + 8, barWidth + 8, 18, tipText);
     });
 
     // Required return line + pill label drawn last so it can't be obscured by bars
@@ -3004,6 +3081,7 @@
     const canvas = document.getElementById('dcaGrowthChart');
     if (!canvas) return;
     const { ctx, w, h } = setupCanvas(canvas);
+    clearCanvasHotspots(canvas);
 
     const margin = { top: 30, right: 120, bottom: 50, left: 80 };
     const plotW = w - margin.left - margin.right;
@@ -3167,12 +3245,14 @@
         ctx.fillStyle = ds.color;
         ctx.textAlign = 'left';
         ctx.fillText(ds.key, lx, ly - 2);
+        const tipText = (_data.assets[ds.key] && _data.assets[ds.key].name) || ds.key;
+        addCanvasHotspot(canvas, lx - 2, ly - 14, textW + 6, 16, tipText);
       }
 
       // Collect end label
       const lastVal = ds.points[ds.points.length - 1];
       const naturalY = yFromVal(lastVal);
-      dcaEndLabels.push({ y: naturalY, naturalY, text: ds.key + ' $' + formatNum(lastVal), color: ds.color });
+      dcaEndLabels.push({ y: naturalY, naturalY, text: ds.key + ' $' + formatNum(lastVal), color: ds.color, key: ds.key });
     });
 
     // Draw end labels at the right edge of the plot (all lines end there now)
@@ -3200,6 +3280,7 @@
     const canvas = document.getElementById('volatilityChart');
     if (!canvas) return;
     const { ctx, w, h } = setupCanvas(canvas);
+    clearCanvasHotspots(canvas);
 
     const margin = { top: 30, right: 30, bottom: 50, left: 70 };
     const plotW = w - margin.left - margin.right;
@@ -3301,22 +3382,19 @@
       ctx.stroke();
     }
 
-    // Required return line
+    // Required return line — label pill drawn at end so nothing covers it
     const reqVal = _settings.requiredReturn;
+    let volReqLineY = null;
     if (reqVal <= visibleMax && reqVal >= visibleMin) {
-      const reqY = yFromVal(reqVal);
+      volReqLineY = yFromVal(reqVal);
       ctx.strokeStyle = '#f59e0b';
       ctx.lineWidth = 1.5;
       ctx.setLineDash([8, 4]);
       ctx.beginPath();
-      ctx.moveTo(margin.left, reqY);
-      ctx.lineTo(w - margin.right, reqY);
+      ctx.moveTo(margin.left, volReqLineY);
+      ctx.lineTo(w - margin.right, volReqLineY);
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.fillStyle = '#f59e0b';
-      ctx.textAlign = 'left';
-      ctx.font = 'bold 11px -apple-system, sans-serif';
-      ctx.fillText('Your Target: ' + reqVal + '%', margin.left + 8, reqY - 8);
     }
 
     // Draw range bars for each asset
@@ -3421,13 +3499,26 @@
       ctx.textAlign = 'center';
       ctx.font = 'bold 13px -apple-system, sans-serif';
       ctx.fillText(a.key, centerX, h - margin.bottom + 22);
+
+      // Hover tooltip covers the bar column + the ticker label
+      const tipText = (_data.assets[a.key] && _data.assets[a.key].name) || a.key;
+      const colTop = Math.min(bestY, worstY, avgY) - 4;
+      const colBot = Math.max(bestY, worstY, avgY) + 4;
+      addCanvasHotspot(canvas, x - 4, colTop, barWidth + 8, colBot - colTop, tipText);
+      addCanvasHotspot(canvas, x - 6, h - margin.bottom + 8, barWidth + 12, 20, tipText);
     });
+
+    // Pill last so it sits on top of bar labels
+    if (volReqLineY !== null) {
+      drawTargetPill(ctx, w - margin.right - 4, volReqLineY, 'Target ' + reqVal + '%', '#f59e0b');
+    }
   }
 
   function renderDrawdownChart() {
     const canvas = document.getElementById('drawdownChart');
     if (!canvas) return;
     const { ctx, w, h } = setupCanvas(canvas);
+    clearCanvasHotspots(canvas);
 
     const margin = { top: 30, right: 30, bottom: 65, left: 70 };
     const plotW = w - margin.left - margin.right;
@@ -3511,6 +3602,12 @@
       ctx.fillStyle = '#94a3b8';
       ctx.font = '12px -apple-system, sans-serif';
       ctx.fillText(key, x + barWidth / 2, h - margin.bottom + 20);
+
+      // Hover tooltip — bar column + the two labels stacked beneath it
+      const tipText = (asset && asset.name) || key;
+      addCanvasHotspot(canvas, x - 2, margin.top - 2, barWidth + 4, barH + 4, tipText);
+      addCanvasHotspot(canvas, x - 6, margin.top + barH + 4, barWidth + 12, 36, tipText);
+      addCanvasHotspot(canvas, x - 6, h - margin.bottom + 8, barWidth + 12, 18, tipText);
     });
   }
 
