@@ -1859,6 +1859,27 @@
     .mix-bucket-allocation { grid-template-columns: 1fr; gap: 6px; }
   }
 
+  .mix-footnotes { margin-top: 16px; }
+  .mix-footnotes h3 {
+    color: var(--muted);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    font-weight: 700;
+    margin-bottom: 12px;
+  }
+  .mix-footnotes ol {
+    margin: 0;
+    padding-left: 22px;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+  }
+  .mix-footnotes li { margin-bottom: 8px; }
+  .mix-footnotes li:last-child { margin-bottom: 0; }
+  .mix-footnotes strong { color: var(--text); font-weight: 600; }
+  .mix-footnotes em { color: var(--text); font-style: normal; }
+
   /* ===== PRINT / PDF SNAPSHOT =====
      #printSnapshot is built fresh by printSnapshot() and shown only
      during printing. Everything else is hidden so the printed page is
@@ -2121,6 +2142,24 @@
         </div>
       </div>
       <div class="mix-verdict-status" id="mixVerdictStatus">Adjust the slider above to see your blend.</div>
+    </div>
+
+    <div class="card mix-footnotes">
+      <h3>About these numbers</h3>
+      <ol>
+        <li>
+          <strong>The green % next to each asset</strong> is the <strong>10-year compound annual growth rate (CAGR)</strong> &mdash; what the asset annualized over the most recent 10 years of monthly closing prices. Newer assets (IBIT, SOL) fall back to the longest full-year history available. These are the same CAGRs you'll see on the Overview and Compare tabs.
+        </li>
+        <li>
+          <strong>The blended expected return</strong> shown above is calculated from <em>your two target inputs</em> (default 7% and 20%) &mdash; not from the actual asset CAGRs. The asset lists are a sanity check showing which tracked assets historically performed near each target. If you change a target, the bucket re-filters.
+        </li>
+        <li>
+          <strong>Data source:</strong> Yahoo Finance, refreshed automatically every Monday at 06:00 UTC. Prices update once a week.
+        </li>
+        <li>
+          <strong>Past performance does not predict future results.</strong> The CAGRs shown are historical, not projections. The conservative bucket can also represent assets we don't track (Treasury bonds, CDs, money-market funds, dividend ETFs) &mdash; pick a target rate that matches what you'd realistically earn there.
+        </li>
+      </ol>
     </div>
   </div>
 
