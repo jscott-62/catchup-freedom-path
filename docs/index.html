@@ -1700,6 +1700,165 @@
     .tab-btn { padding: 10px 14px; font-size: 13px; }
   }
 
+  /* ===== PORTFOLIO MIX TAB ===== */
+  .mix-intro h2 { color: var(--accent); font-size: 20px; margin-bottom: 10px; }
+  .mix-intro p { color: var(--text); font-size: 14px; line-height: 1.6; }
+  .mix-slider-card { margin-top: 16px; }
+  .mix-slider-row {
+    display: grid;
+    grid-template-columns: minmax(120px, auto) 1fr minmax(120px, auto);
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 22px;
+  }
+  .mix-slider-end { display: flex; flex-direction: column; gap: 4px; }
+  .mix-cons-end { text-align: left; }
+  .mix-aggr-end { text-align: right; }
+  .mix-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; }
+  .mix-pct { font-size: 28px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .mix-cons-end .mix-pct { color: var(--blue); }
+  .mix-aggr-end .mix-pct { color: var(--accent); }
+  .mix-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--blue) 0%, var(--accent) 100%);
+    outline: none;
+    cursor: pointer;
+  }
+  .mix-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 3px solid var(--bg);
+    cursor: grab;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+  }
+  .mix-slider::-moz-range-thumb {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: var(--text);
+    border: 3px solid var(--bg);
+    cursor: grab;
+  }
+  .mix-targets-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+  }
+  .mix-target-field { display: flex; flex-direction: column; gap: 6px; }
+  .mix-target-field label { color: var(--muted); font-size: 12px; }
+  .mix-target-input { display: flex; align-items: center; gap: 6px; }
+  .mix-target-input input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .mix-target-input input:focus { border-color: var(--accent); }
+  .mix-target-input span { color: var(--muted); font-size: 13px; }
+
+  .mix-buckets {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .mix-bucket-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .mix-bucket-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+  }
+  .mix-bucket-badge.cons { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+  .mix-bucket-badge.aggr { background: rgba(245, 158, 11, 0.15); color: var(--accent); }
+  .mix-bucket-target { color: var(--muted); font-size: 12px; }
+  .mix-bucket-target strong { color: var(--text); font-size: 14px; }
+  .mix-bucket-allocation {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 14px;
+    background: rgba(0,0,0,0.18);
+    border-radius: 8px;
+    margin-bottom: 14px;
+  }
+  .mix-bucket-allocation > div { display: flex; flex-direction: column; gap: 4px; }
+  .mix-stat-label { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; }
+  .mix-stat-value { color: var(--text); font-size: 16px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mix-bucket-assets-label { color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+  .mix-bucket-assets {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 280px;
+    overflow-y: auto;
+  }
+  .mix-asset-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+  .mix-asset-row .ma-name { color: var(--text); font-weight: 600; }
+  .mix-asset-row .ma-ticker { color: var(--muted); font-size: 11px; margin-left: 6px; }
+  .mix-asset-row .ma-cagr { color: var(--green); font-weight: 700; font-variant-numeric: tabular-nums; }
+  .mix-bucket-assets .mix-asset-empty {
+    color: var(--muted);
+    font-size: 12px;
+    font-style: italic;
+    padding: 12px;
+    text-align: center;
+    background: var(--bg);
+    border: 1px dashed var(--border);
+    border-radius: 6px;
+  }
+
+  .mix-verdict-card { margin-top: 16px; }
+  .mix-verdict-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .mix-verdict-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 6px; }
+  .mix-verdict-value { font-size: 32px; font-weight: 800; color: var(--text); font-variant-numeric: tabular-nums; }
+  .mix-verdict-status { font-size: 14px; line-height: 1.5; }
+  .mix-verdict-status.hit { color: var(--green); }
+  .mix-verdict-status.miss { color: var(--accent); }
+  .mix-verdict-status.over { color: var(--green); }
+
+  @media (max-width: 768px) {
+    .mix-buckets, .mix-targets-row, .mix-verdict-grid { grid-template-columns: 1fr; }
+    .mix-slider-row { grid-template-columns: 1fr; gap: 12px; }
+    .mix-aggr-end { text-align: left; }
+    .mix-bucket-allocation { grid-template-columns: 1fr; gap: 6px; }
+  }
+
   /* ===== PRINT / PDF SNAPSHOT =====
      #printSnapshot is built fresh by printSnapshot() and shown only
      during printing. Everything else is hidden so the printed page is
@@ -1774,6 +1933,7 @@
     <button class="tab-btn active" data-tab="overview">1. Overview</button>
     <button class="tab-btn" data-tab="compare">2. Compare</button>
     <button class="tab-btn" data-tab="dca">3. DCA Simulator</button>
+    <button class="tab-btn" data-tab="mix">4. Mix</button>
   </div>
 
   <!-- TAB: OVERVIEW -->
@@ -1886,6 +2046,84 @@
     </div>
   </div>
 
+  <!-- TAB: PORTFOLIO MIX -->
+  <div class="tab-content" id="tab-mix">
+    <div class="card mix-intro">
+      <h2>Mix Conservative + Aggressive Buckets</h2>
+      <p>
+        You don't need every dollar earning the same return to hit your Freedom Number. Most catch-up plans split between <strong>steady assets</strong> that compound predictably and <strong>aggressive ones</strong> that can outperform but with bigger drops. Set your target returns and use the slider to see how the blend stacks up against your required return.
+      </p>
+    </div>
+
+    <div class="card mix-slider-card">
+      <div class="mix-slider-row">
+        <div class="mix-slider-end mix-cons-end">
+          <div class="mix-label">Conservative</div>
+          <div class="mix-pct" id="mixConsPct">40%</div>
+        </div>
+        <input type="range" id="mixSlider" min="0" max="100" step="5" value="40" class="mix-slider">
+        <div class="mix-slider-end mix-aggr-end">
+          <div class="mix-label">Aggressive</div>
+          <div class="mix-pct" id="mixAggrPct">60%</div>
+        </div>
+      </div>
+      <div class="mix-targets-row">
+        <div class="mix-target-field">
+          <label for="mixConsTarget">Conservative target return</label>
+          <div class="mix-target-input"><input type="number" id="mixConsTarget" min="1" max="20" step="0.5" value="7"><span>% / yr</span></div>
+        </div>
+        <div class="mix-target-field">
+          <label for="mixAggrTarget">Aggressive target return</label>
+          <div class="mix-target-input"><input type="number" id="mixAggrTarget" min="10" max="60" step="1" value="20"><span>% / yr</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mix-buckets">
+      <div class="card mix-bucket mix-bucket-cons">
+        <div class="mix-bucket-header">
+          <span class="mix-bucket-badge cons">Conservative</span>
+          <span class="mix-bucket-target">Target: <strong id="mixConsTargetEcho">7%</strong></span>
+        </div>
+        <div class="mix-bucket-allocation">
+          <div><span class="mix-stat-label">Allocation</span><span class="mix-stat-value" id="mixConsAlloc">40%</span></div>
+          <div><span class="mix-stat-label">From initial</span><span class="mix-stat-value" id="mixConsInitial">$0</span></div>
+          <div><span class="mix-stat-label">Monthly</span><span class="mix-stat-value" id="mixConsMonthly">$0</span></div>
+        </div>
+        <div class="mix-bucket-assets-label">Assets in your universe with similar return profile:</div>
+        <div class="mix-bucket-assets" id="mixConsAssets"></div>
+      </div>
+
+      <div class="card mix-bucket mix-bucket-aggr">
+        <div class="mix-bucket-header">
+          <span class="mix-bucket-badge aggr">Aggressive</span>
+          <span class="mix-bucket-target">Target: <strong id="mixAggrTargetEcho">20%+</strong></span>
+        </div>
+        <div class="mix-bucket-allocation">
+          <div><span class="mix-stat-label">Allocation</span><span class="mix-stat-value" id="mixAggrAlloc">60%</span></div>
+          <div><span class="mix-stat-label">From initial</span><span class="mix-stat-value" id="mixAggrInitial">$0</span></div>
+          <div><span class="mix-stat-label">Monthly</span><span class="mix-stat-value" id="mixAggrMonthly">$0</span></div>
+        </div>
+        <div class="mix-bucket-assets-label">Assets in your universe that hit or exceed this target:</div>
+        <div class="mix-bucket-assets" id="mixAggrAssets"></div>
+      </div>
+    </div>
+
+    <div class="card mix-verdict-card" id="mixVerdictCard">
+      <div class="mix-verdict-grid">
+        <div>
+          <div class="mix-verdict-label">Blended Expected Return</div>
+          <div class="mix-verdict-value" id="mixBlendedReturn">—</div>
+        </div>
+        <div>
+          <div class="mix-verdict-label">Your Required Return</div>
+          <div class="mix-verdict-value" id="mixRequiredReturn">—</div>
+        </div>
+      </div>
+      <div class="mix-verdict-status" id="mixVerdictStatus">Adjust the slider above to see your blend.</div>
+    </div>
+  </div>
+
   <!-- DISCLAIMER -->
   <div class="disclaimer">
     <strong>Important Disclaimer:</strong> This tool is for educational purposes only. It is not financial advice.
@@ -1922,7 +2160,11 @@
     activeTab: 'overview',
     compareTimeframe: 10,
     customTickers: [],
-    selectedAssets: []
+    selectedAssets: [],
+    // Portfolio Mix tab state
+    mixConservativePct: 40,
+    mixConservativeTarget: 7,
+    mixAggressiveTarget: 20
   };
   let _assetMetrics = {};
   let _activeAssets = [];
@@ -3784,6 +4026,125 @@
   }
 
   // --- DCA Rendering ---
+  // --- Portfolio Mix tab ---
+  // Bucketed allocation tool: user splits their investable money between a
+  // 'conservative' bucket (lower target return) and an 'aggressive' bucket
+  // (higher target return), then sees the blended expected return vs their
+  // required return. Educational point: you don't need every dollar at the
+  // required-return level to hit your Freedom Number.
+  function renderPortfolioMix() {
+    const consPct = clampMixPct(_settings.mixConservativePct);
+    const aggrPct = 100 - consPct;
+    const consTarget = parseFloat(_settings.mixConservativeTarget) || 7;
+    const aggrTarget = parseFloat(_settings.mixAggressiveTarget) || 20;
+
+    // Sync slider + inputs without firing change events
+    const slider = document.getElementById('mixSlider');
+    if (slider && document.activeElement !== slider) slider.value = consPct;
+    const consInp = document.getElementById('mixConsTarget');
+    if (consInp && document.activeElement !== consInp) consInp.value = consTarget;
+    const aggrInp = document.getElementById('mixAggrTarget');
+    if (aggrInp && document.activeElement !== aggrInp) aggrInp.value = aggrTarget;
+
+    document.getElementById('mixConsPct').textContent = consPct + '%';
+    document.getElementById('mixAggrPct').textContent = aggrPct + '%';
+    document.getElementById('mixConsAlloc').textContent = consPct + '%';
+    document.getElementById('mixAggrAlloc').textContent = aggrPct + '%';
+    document.getElementById('mixConsTargetEcho').textContent = consTarget + '%';
+    document.getElementById('mixAggrTargetEcho').textContent = aggrTarget + '%+';
+
+    const initial = _settings.initialInvestment || 0;
+    const monthly = _settings.monthlyBudget || 0;
+    const fmt = (n) => '$' + Math.round(n).toLocaleString();
+    document.getElementById('mixConsInitial').textContent = fmt(initial * consPct / 100);
+    document.getElementById('mixAggrInitial').textContent = fmt(initial * aggrPct / 100);
+    document.getElementById('mixConsMonthly').textContent = fmt(monthly * consPct / 100);
+    document.getElementById('mixAggrMonthly').textContent = fmt(monthly * aggrPct / 100);
+
+    // Bucket the universe by historical 10Y CAGR.
+    // Conservative band = target ± 5pp so a 7% target picks up 2% to 12% assets.
+    // Aggressive band = anything at or above the aggressive target.
+    const universe = _activeAssets
+      .map(k => {
+        const a = _data.assets[k];
+        const m = _assetMetrics[k];
+        if (!a || !m) return null;
+        const cagr = m.returns['10'] !== null ? m.returns['10'] : (m.returns['5'] || 0);
+        return { key: k, name: a.name, ticker: a.ticker, color: a.color, cagr };
+      })
+      .filter(Boolean);
+
+    const consBand = 5;
+    const consMin = Math.max(0, consTarget - consBand);
+    const consMax = consTarget + consBand;
+    const conservativeAssets = universe
+      .filter(x => x.cagr >= consMin && x.cagr <= consMax)
+      .sort((a, b) => Math.abs(a.cagr - consTarget) - Math.abs(b.cagr - consTarget));
+    const aggressiveAssets = universe
+      .filter(x => x.cagr >= aggrTarget)
+      .sort((a, b) => b.cagr - a.cagr);
+
+    const buildBucket = (assets, fallbackMsg) => {
+      if (assets.length === 0) {
+        return '<div class="mix-asset-empty">' + fallbackMsg + '</div>';
+      }
+      return assets.map(x =>
+        '<div class="mix-asset-row" title="' + x.name + '">' +
+          '<div><span class="ma-name">' + x.name + '</span><span class="ma-ticker">' + x.ticker + '</span></div>' +
+          '<div class="ma-cagr">' + x.cagr.toFixed(1) + '%</div>' +
+        '</div>'
+      ).join('');
+    };
+    document.getElementById('mixConsAssets').innerHTML = buildBucket(conservativeAssets,
+      'No assets in your tracked universe land near ' + consTarget + '%. Treasury bonds, CDs, and money-market funds typically sit in this range — they are not tracked here.');
+    document.getElementById('mixAggrAssets').innerHTML = buildBucket(aggressiveAssets,
+      'No assets in your tracked universe hit ' + aggrTarget + '%+ over the available history. Try a lower aggressive target.');
+
+    // Blended return = weighted average of the two bucket targets.
+    // (Pure math from the user's TARGETS — not the actual asset averages —
+    //  so the slider tells a clean story without curve-fitting.)
+    const blended = (consPct * consTarget + aggrPct * aggrTarget) / 100;
+    const required = _settings.requiredReturn || 0;
+
+    document.getElementById('mixBlendedReturn').textContent = blended.toFixed(1) + '%';
+    document.getElementById('mixRequiredReturn').textContent = required > 0 ? required + '%' : '—';
+
+    const statusEl = document.getElementById('mixVerdictStatus');
+    statusEl.className = 'mix-verdict-status';
+    if (required <= 0) {
+      statusEl.textContent = 'Calculate your Freedom Number first so we can compare your blend against a required return.';
+    } else {
+      const diff = blended - required;
+      if (Math.abs(diff) < 0.25) {
+        statusEl.classList.add('hit');
+        statusEl.innerHTML = '<strong>This mix hits your required return exactly.</strong>';
+      } else if (diff > 0) {
+        statusEl.classList.add('over');
+        statusEl.innerHTML = '<strong>This mix clears your required return by ' + diff.toFixed(1) + ' percentage points.</strong> You could lean a bit more conservative and still hit your number.';
+      } else {
+        statusEl.classList.add('miss');
+        // What conservative% would hit the required return exactly?
+        // required = c%/100*consT + (1-c%/100)*aggrT
+        // => c%/100 = (aggrT - required) / (aggrT - consT)
+        let suggestion = '';
+        if (aggrTarget > consTarget && required <= aggrTarget && required >= consTarget) {
+          const optimalCons = Math.round(((aggrTarget - required) / (aggrTarget - consTarget)) * 100);
+          const optimalAggr = 100 - optimalCons;
+          suggestion = ' Shifting to <strong>' + optimalAggr + '% aggressive</strong> (with these targets) would hit ' + required + '%.';
+        } else if (required > aggrTarget) {
+          suggestion = ' Your required return is higher than even your aggressive target — either raise the aggressive target or extend your timeline.';
+        }
+        statusEl.innerHTML = '<strong>Short by ' + Math.abs(diff).toFixed(1) + ' percentage points.</strong>' + suggestion;
+      }
+    }
+  }
+
+  function clampMixPct(v) {
+    const n = parseInt(v, 10);
+    if (isNaN(n)) return 40;
+    return Math.max(0, Math.min(100, n));
+  }
+
   function renderDCA() {
     const container = document.getElementById('dcaResults');
     const budget = _settings.monthlyBudget;
@@ -3892,6 +4253,8 @@
         } else if (tab === 'dca') {
           renderDCA();
           setTimeout(renderDCAGrowthChart, 150);
+        } else if (tab === 'mix') {
+          renderPortfolioMix();
         }
       });
     });
@@ -3958,6 +4321,38 @@
       if (e.key === 'Enter') addCustomTicker();
     });
 
+    // Portfolio Mix inputs
+    const mixSlider = document.getElementById('mixSlider');
+    if (mixSlider) {
+      mixSlider.addEventListener('input', () => {
+        _settings.mixConservativePct = clampMixPct(mixSlider.value);
+        renderPortfolioMix();
+        debounceSave();
+      });
+    }
+    const mixConsTargetInp = document.getElementById('mixConsTarget');
+    if (mixConsTargetInp) {
+      mixConsTargetInp.addEventListener('input', () => {
+        const v = parseFloat(mixConsTargetInp.value);
+        if (!isNaN(v) && v >= 0) {
+          _settings.mixConservativeTarget = v;
+          renderPortfolioMix();
+          debounceSave();
+        }
+      });
+    }
+    const mixAggrTargetInp = document.getElementById('mixAggrTarget');
+    if (mixAggrTargetInp) {
+      mixAggrTargetInp.addEventListener('input', () => {
+        const v = parseFloat(mixAggrTargetInp.value);
+        if (!isNaN(v) && v >= 0) {
+          _settings.mixAggressiveTarget = v;
+          renderPortfolioMix();
+          debounceSave();
+        }
+      });
+    }
+
     // Window resize: redraw charts on whichever tab is active
     let resizeTimer;
     window.addEventListener('resize', () => {
@@ -3970,7 +4365,7 @@
 
     // Restore active tab (default is 'overview' since the FN tab was removed).
     // If a previous version stored a removed tab, fall back to 'overview'.
-    const VALID_TABS = ['overview', 'compare', 'dca'];
+    const VALID_TABS = ['overview', 'compare', 'dca', 'mix'];
     if (!VALID_TABS.includes(_settings.activeTab)) _settings.activeTab = 'overview';
     if (_settings.activeTab && _settings.activeTab !== 'overview') {
       const btn = document.querySelector(`.tab-btn[data-tab="${_settings.activeTab}"]`);
@@ -3983,6 +4378,8 @@
           setTimeout(renderCompareCharts, 200);
         } else if (_settings.activeTab === 'dca') {
           setTimeout(renderDCAGrowthChart, 200);
+        } else if (_settings.activeTab === 'mix') {
+          setTimeout(renderPortfolioMix, 100);
         }
       }
     }
