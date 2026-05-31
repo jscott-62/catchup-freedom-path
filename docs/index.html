@@ -1916,6 +1916,7 @@
     // Set by URL params from the Freedom Number Calculator handoff
     requiredReturn: 0,
     freedomNumber: 0,
+    initialInvestment: 0,
     timeline: 15,
     monthlyBudget: 500,
     activeTab: 'overview',
@@ -1966,10 +1967,12 @@
     const rrParam = parseFloat(params.get('rr'));
     const yrsParam = parseFloat(params.get('years'));
     const moParam = parseFloat(params.get('monthly'));
+    const initParam = parseFloat(params.get('initial'));
     if (!isNaN(fnParam) && fnParam > 0) _settings.freedomNumber = fnParam;
     if (!isNaN(rrParam) && rrParam > 0) _settings.requiredReturn = rrParam;
     if (!isNaN(yrsParam) && yrsParam > 0) _settings.timeline = yrsParam;
     if (!isNaN(moParam) && moParam >= 0) _settings.monthlyBudget = moParam;
+    if (!isNaN(initParam) && initParam >= 0) _settings.initialInvestment = initParam;
     debounceSave();
   }
 
@@ -2205,8 +2208,9 @@
       <div class="ps-plan">
         <div>Freedom Number: <strong>$${fn.toLocaleString()}</strong></div>
         <div>Required Return: <strong>${_settings.requiredReturn}% / year</strong></div>
-        <div>Timeline: <strong>${_settings.timeline} years</strong></div>
+        <div>Initial Investment: <strong>$${(_settings.initialInvestment || 0).toLocaleString()}</strong></div>
         <div>Monthly Investing: <strong>$${(_settings.monthlyBudget || 0).toLocaleString()}</strong></div>
+        <div>Timeline: <strong>${_settings.timeline} years</strong></div>
       </div>
 
       <h2>Risk vs Return Map</h2>
@@ -2571,10 +2575,14 @@
     bar.classList.add('show');
 
     const fn = _settings.freedomNumber || 0;
+    const init = _settings.initialInvestment || 0;
+    const initFrag = init > 0
+      ? `starting with <strong>$${init.toLocaleString()}</strong> and investing`
+      : `investing`;
     if (fn > 0) {
-      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong> to reach <strong>$${fn.toLocaleString()}</strong>.`;
+      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, ${initFrag} <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong> to reach <strong>$${fn.toLocaleString()}</strong>.`;
     } else {
-      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, investing <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong>.`;
+      text.innerHTML = `Your plan: <strong>${_settings.requiredReturn}%</strong> required return over <strong>${_settings.timeline} years</strong>, ${initFrag} <strong>$${_settings.monthlyBudget.toLocaleString()}/mo</strong>.`;
     }
   }
 
