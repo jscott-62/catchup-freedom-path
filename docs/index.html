@@ -1699,6 +1699,41 @@
     .asset-price { font-size: 22px; }
     .tab-btn { padding: 10px 14px; font-size: 13px; }
   }
+
+  /* ===== PRINT / PDF SNAPSHOT =====
+     #printSnapshot is built fresh by printSnapshot() and shown only
+     during printing. Everything else is hidden so the printed page is
+     clean — no tabs, no buttons, no scroll bars. */
+  #printSnapshot { display: none; }
+  @media print {
+    @page { margin: 0.5in; size: letter; }
+    body { background: white !important; color: #111 !important; padding: 0 !important; }
+    body * { visibility: hidden !important; }
+    #printSnapshot, #printSnapshot * { visibility: visible !important; }
+    #printSnapshot {
+      display: block !important;
+      position: absolute;
+      left: 0; top: 0; right: 0;
+      padding: 0;
+      color: #111;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+    #printSnapshot h1 { font-size: 22px; color: #111; margin: 0 0 4px 0; }
+    #printSnapshot .ps-subtitle { color: #555; font-size: 12px; margin-bottom: 18px; }
+    #printSnapshot h2 { font-size: 14px; color: #b45309; margin: 18px 0 8px 0; border-bottom: 1px solid #ddd; padding-bottom: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+    #printSnapshot .ps-plan { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 24px; font-size: 13px; margin-bottom: 6px; }
+    #printSnapshot .ps-plan strong { color: #111; }
+    #printSnapshot table { width: 100%; border-collapse: collapse; font-size: 12px; }
+    #printSnapshot th { text-align: left; padding: 6px 8px; border-bottom: 1.5px solid #444; color: #444; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px; }
+    #printSnapshot td { padding: 5px 8px; border-bottom: 1px solid #eee; color: #222; }
+    #printSnapshot td.num { text-align: right; font-variant-numeric: tabular-nums; }
+    #printSnapshot td.neg { color: #b91c1c; }
+    #printSnapshot tr.selected td { background: #fef3c7; font-weight: 600; }
+    #printSnapshot .ps-chart { margin: 10px 0 4px 0; }
+    #printSnapshot .ps-chart img { width: 100%; max-width: 760px; display: block; }
+    #printSnapshot .ps-footer { margin-top: 22px; padding-top: 10px; border-top: 1px solid #ddd; font-size: 10px; color: #666; line-height: 1.45; }
+    #printSnapshot .ps-footer strong { color: #444; }
+  }
 </style>
 </head>
 <body>
@@ -1713,6 +1748,7 @@
     <div class="header-right">
       <div class="data-date" id="dataDate">Data as of: Loading...</div>
       <div class="data-actions">
+        <button class="data-action-btn" id="btnPrint" title="Print this snapshot or save as PDF"><span class="icon">🖨</span> Print / PDF</button>
         <button class="data-action-btn" id="btnExport" title="Download your settings as a JSON file"><span class="icon">⬇</span> Export</button>
         <button class="data-action-btn" id="btnImport" title="Load settings from a previously exported file"><span class="icon">⬆</span> Import</button>
         <button class="data-action-btn danger" id="btnReset" title="Erase all your data and start fresh"><span class="icon">⟲</span> Reset</button>
@@ -1855,12 +1891,15 @@
     <strong>Important Disclaimer:</strong> This tool is for educational purposes only. It is not financial advice.
     Past performance does not guarantee future results. All data shown is historical and should not be used as the sole basis
     for investment decisions. The Catch-Up Fit Score is an educational metric, not a recommendation.
-    Always consult with a qualified financial professional before making investment decisions.
     <br><br>
     Built for The Great Catch-Up program by J. Scott MacMillan.
   </div>
 
 </div>
+
+<!-- Printable snapshot container — populated by printSnapshot() on demand,
+     hidden via CSS otherwise; print stylesheet shows it and hides everything else -->
+<div id="printSnapshot"></div>
 
 <script src="asset-data.js"></script>
 <script>
@@ -2074,6 +2113,131 @@
     } catch (e) {
       showToast('Reset failed: ' + e.message, 'error');
     }
+  }
+
+  // Build a printable one-page "Asset Exploration Snapshot" and trigger the
+  // browser print dialog (which doubles as Save as PDF on every modern OS).
+  // The snapshot lives in #printSnapshot; CSS hides it except during print.
+  function printSnapshot() {
+    const target = document.getElementById('printSnapshot');
+    if (!target) return;
+
+    // Ensure the scatter is rendered so we can capture it. If the Compare tab
+    // has never been viewed its canvas has 0×0 dimensions — briefly reveal it
+    // off-screen so the chart can lay out at full size, then put it back.
+    const compareTab = document.getElementById('tab-compare');
+    const wasActive = compareTab && compareTab.classList.contains('active');
+    let restoreCompare = null;
+    if (compareTab && !wasActive) {
+      const orig = {
+        display: compareTab.style.display,
+        position: compareTab.style.position,
+        visibility: compareTab.style.visibility,
+        left: compareTab.style.left,
+        top: compareTab.style.top,
+      };
+      compareTab.style.position = 'absolute';
+      compareTab.style.left = '-9999px';
+      compareTab.style.top = '0';
+      compareTab.style.visibility = 'hidden';
+      compareTab.style.display = 'block';
+      compareTab.classList.add('active');
+      restoreCompare = () => {
+        compareTab.classList.remove('active');
+        Object.assign(compareTab.style, orig);
+      };
+    }
+    let scatterImg = '';
+    try {
+      renderRiskReturnChart();
+      const scatterCanvas = document.getElementById('riskReturnChart');
+      if (scatterCanvas && scatterCanvas.width > 0) {
+        scatterImg = '<div class="ps-chart"><img alt="Risk vs Return Map" src="' + scatterCanvas.toDataURL('image/png') + '"></div>';
+      }
+    } catch (e) {
+      // Canvas render or toDataURL failed — print still proceeds without the map
+      console.warn('Scatter capture failed; printing without map:', e && e.message);
+    }
+    if (restoreCompare) restoreCompare();
+
+    // Build asset table — selected first (highlighted), then the rest sorted
+    // by Fit Score so the print is decision-relevant even with 0 selections.
+    const rows = _activeAssets.map(key => {
+      const a = _data.assets[key];
+      const m = _assetMetrics[key];
+      if (!a || !m) return null;
+      return {
+        key, name: a.name, ticker: a.ticker,
+        cagr: m.returns['10'] !== null ? m.returns['10'] : (m.returns['5'] || 0),
+        dd: m.maxDrawdown.drawdown,
+        recM: m.maxDrawdown.recoveryMonths,
+        grade: (m.gradeV2 || m.grade || {}).letter || '',
+        selected: _settings.selectedAssets.includes(key)
+      };
+    }).filter(Boolean);
+    rows.sort((a, b) => {
+      if (a.selected !== b.selected) return a.selected ? -1 : 1;
+      return (b.cagr || 0) - (a.cagr || 0);
+    });
+
+    const fmtRec = (m) => m === null ? '<span class="neg">still down</span>'
+      : m < 12 ? m + ' mo' : (m / 12).toFixed(1) + 'y';
+
+    const tableRows = rows.map(r => `
+      <tr class="${r.selected ? 'selected' : ''}">
+        <td>${r.name}</td>
+        <td>${r.ticker}</td>
+        <td class="num">${r.cagr.toFixed(1)}%</td>
+        <td class="num neg">${r.dd.toFixed(0)}%</td>
+        <td class="num">${fmtRec(r.recM)}</td>
+        <td class="num">${r.grade}</td>
+      </tr>`).join('');
+
+    const fn = _settings.freedomNumber || 0;
+    const selCount = _settings.selectedAssets.length;
+    const dateStr = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    target.innerHTML = `
+      <h1>Asset Exploration Snapshot</h1>
+      <div class="ps-subtitle">Freedom Path Explorer &middot; Generated ${dateStr}</div>
+
+      <h2>Your Plan</h2>
+      <div class="ps-plan">
+        <div>Freedom Number: <strong>$${fn.toLocaleString()}</strong></div>
+        <div>Required Return: <strong>${_settings.requiredReturn}% / year</strong></div>
+        <div>Timeline: <strong>${_settings.timeline} years</strong></div>
+        <div>Monthly Investing: <strong>$${(_settings.monthlyBudget || 0).toLocaleString()}</strong></div>
+      </div>
+
+      <h2>Risk vs Return Map</h2>
+      ${scatterImg || '<div style="color:#666;font-size:12px;">Map unavailable.</div>'}
+
+      <h2>Assets ${selCount > 0 ? '(' + selCount + ' selected, highlighted)' : '(sorted by 10-year return)'}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Ticker</th>
+            <th style="text-align:right">10Y CAGR</th>
+            <th style="text-align:right">Worst Drop</th>
+            <th style="text-align:right">Time to Recover</th>
+            <th style="text-align:right">Fit</th>
+          </tr>
+        </thead>
+        <tbody>${tableRows}</tbody>
+      </table>
+
+      <div class="ps-footer">
+        <strong>For exploration and discussion only — not financial advice.</strong>
+        Returns are historical and do not guarantee future results. The Catch-Up Fit Score
+        is an educational metric, not a recommendation. Always consult a qualified
+        financial professional before making investment decisions.
+        <br>Built for The Great Catch-Up program by J. Scott MacMillan.
+      </div>
+    `;
+
+    // Give the browser a tick to lay out the snapshot, then print
+    setTimeout(() => window.print(), 150);
   }
   // --- Financial Calculations ---
   function calcAnnualizedReturn(prices, years) {
@@ -3681,6 +3845,7 @@
     const btnExport = document.getElementById('btnExport');
     const btnImport = document.getElementById('btnImport');
     const btnReset = document.getElementById('btnReset');
+    const btnPrint = document.getElementById('btnPrint');
     const importInput = document.getElementById('importFileInput');
     if (btnExport) btnExport.addEventListener('click', exportSettings);
     if (btnImport && importInput) {
@@ -3691,6 +3856,7 @@
       });
     }
     if (btnReset) btnReset.addEventListener('click', resetSettings);
+    if (btnPrint) btnPrint.addEventListener('click', printSnapshot);
 
     // Empty-state "Go to Overview" buttons on Compare and DCA tabs
     document.querySelectorAll('[data-goto-overview]').forEach(btn => {
