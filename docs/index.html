@@ -2151,7 +2151,7 @@
           <strong>The green % next to each asset</strong> is the <strong>10-year compound annual growth rate (CAGR)</strong> &mdash; what the asset annualized over the most recent 10 years of monthly closing prices. Newer assets (IBIT, SOL) fall back to the longest full-year history available. These are the same CAGRs you'll see on the Overview and Compare tabs.
         </li>
         <li>
-          <strong>The blended expected return</strong> shown above is calculated from <em>your two target return inputs</em> (default 7% and 20%) &mdash; not from the actual asset CAGRs. The asset lists are a sanity check showing which tracked assets historically performed near each target. If you change a target return input, the bucket re-filters to match the new target. The slider only changes how much money goes in each bucket, not which assets qualify.
+          <strong>The blended expected return</strong> is a weighted average: <em>(Conservative % &times; Conservative target) + (Aggressive % &times; Aggressive target)</em>. So moving the slider changes the blend by shifting the weights, and changing a target return input changes the rate itself. The asset CAGRs shown next to each ticker are <em>not</em> part of this calculation &mdash; they're a sanity check showing which tracked assets historically performed near each target. Changing a target return input also re-filters its bucket; the slider does not.
         </li>
         <li>
           <strong>Data source:</strong> Yahoo Finance, refreshed automatically every Monday at 06:00 UTC. Prices update once a week.
