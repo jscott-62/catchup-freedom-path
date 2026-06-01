@@ -140,6 +140,37 @@
     font-size: 12px;
     margin-left: 6px;
   }
+  .matches-table .pick-col { width: 38px; text-align: center; }
+  .matches-table .pick-col input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 1.5px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    background: var(--bg);
+    position: relative;
+    margin: 0;
+    vertical-align: middle;
+    transition: all 0.15s;
+  }
+  .matches-table .pick-col input[type="checkbox"]:hover { border-color: var(--muted); }
+  .matches-table .pick-col input[type="checkbox"]:checked {
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+  .matches-table .pick-col input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 1px;
+    width: 5px;
+    height: 10px;
+    border: solid #0f172a;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg);
+  }
   .matches-empty {
     padding: 30px;
     text-align: center;
@@ -281,7 +312,7 @@
       <div class="section-title">Risk vs Return Map</div>
       <div class="section-sub">Every asset we track, plotted on one chart. <strong style="color:var(--text)">Higher up = more growth.</strong> <strong style="color:var(--text)">Further right = smaller worst-case drop.</strong> The dashed line is the return you need to hit your Freedom Number — anything above it has historically gotten you there.</div>
     </div>
-    <canvas id="riskReturnChart" height="440"></canvas>
+    <canvas id="riskReturnChart" height="320"></canvas>
   </div>
 
   <!-- MATCHES TABLE -->
@@ -297,7 +328,7 @@
   <div class="card">
     <div class="section-header">
       <div class="section-title" id="dcaTitle">What Your Monthly Investing Would Have Grown To</div>
-      <div class="section-sub" id="dcaSub">If you'd invested your monthly contribution into the top matches above over your timeline, here's what would have happened. <em>Log scale so high and moderate performers are both visible.</em></div>
+      <div class="section-sub" id="dcaSub">If you'd invested your monthly contribution into the assets you checked above over your timeline, here's what would have happened. <em>Log scale so high and moderate performers are both visible.</em></div>
     </div>
     <canvas id="dcaChart" height="380"></canvas>
   </div>
@@ -342,6 +373,22 @@
   let _plan = { requiredReturn: 0, freedomNumber: 0, timeline: 15, monthlyBudget: 500, initialInvestment: 0 };
   let _metrics = {};
   let _activeAssets = [];
+  // Which assets the user has selected for the DCA chart. Persists across
+  // reloads so they don't lose their picks; auto-defaults to the top 5
+  // matches the first time the page loads (or when previous picks no longer
+  // match the current target return).
+  let _dcaSelected = null;
+  const DCA_SEL_KEY = 'freedom-path-lite-dca-selected';
+
+  function loadDcaSelection() {
+    try {
+      const saved = localStorage.getItem(DCA_SEL_KEY);
+      if (saved) _dcaSelected = JSON.parse(saved);
+    } catch (e) {}
+  }
+  function saveDcaSelection() {
+    try { localStorage.setItem(DCA_SEL_KEY, JSON.stringify(_dcaSelected || [])); } catch (e) {}
+  }
 
   // --- URL params ---
   function ingestUrlParams() {
@@ -630,22 +677,39 @@
           <strong>No tracked asset has hit a ${_plan.requiredReturn}% 10-year CAGR.</strong><br>
           That doesn't mean it's impossible — it means the path needs more than a one-asset bet. The full Catch-Up program covers bucket strategies, leverage, and other approaches that change the math.
         </div>`;
+      _dcaSelected = [];
       return;
     }
 
-    subEl.textContent = `${matches.length} asset${matches.length !== 1 ? 's' : ''} historically hit your target. The drop and recovery columns show what holders had to endure to earn it.`;
-    const rows = matches.map(m => `
+    // Reconcile selection with current matches. If nothing persisted (or
+    // persisted picks no longer match the current target), default to the
+    // top 5 matches checked.
+    const matchKeys = matches.map(m => m.key);
+    if (!Array.isArray(_dcaSelected)) _dcaSelected = [];
+    _dcaSelected = _dcaSelected.filter(k => matchKeys.includes(k));
+    if (_dcaSelected.length === 0) {
+      _dcaSelected = matches.slice(0, Math.min(5, matches.length)).map(m => m.key);
+    }
+    saveDcaSelection();
+
+    subEl.textContent = `${matches.length} asset${matches.length !== 1 ? 's' : ''} historically hit your target. Check the ones you want to see in the DCA chart below.`;
+
+    const rows = matches.map(m => {
+      const checked = _dcaSelected.includes(m.key) ? 'checked' : '';
+      return `
       <tr>
+        <td class="pick-col"><input type="checkbox" class="dca-pick" data-asset="${m.key}" ${checked} title="Show on DCA chart"></td>
         <td class="ticker-cell"><span style="color:${m.color};font-weight:700">${m.name}</span><span class="ticker">${m.ticker}</span></td>
         <td class="num cagr">+${m.cagr.toFixed(1)}%</td>
         <td class="num drop">${m.drawdown.toFixed(0)}%</td>
         <td class="num recover">${fmtRecovery(m.recoveryMonths)}</td>
-      </tr>
-    `).join('');
+      </tr>`;
+    }).join('');
     content.innerHTML = `
       <table class="matches-table">
         <thead>
           <tr>
+            <th class="pick-col" title="Show on DCA chart">✓</th>
             <th>Asset</th>
             <th class="num">10Y CAGR</th>
             <th class="num">Worst Drop</th>
@@ -654,6 +718,20 @@
         </thead>
         <tbody>${rows}</tbody>
       </table>`;
+
+    // Wire the checkboxes — toggling updates _dcaSelected and re-renders DCA.
+    content.querySelectorAll('.dca-pick').forEach(box => {
+      box.addEventListener('change', () => {
+        const key = box.getAttribute('data-asset');
+        if (box.checked) {
+          if (!_dcaSelected.includes(key)) _dcaSelected.push(key);
+        } else {
+          _dcaSelected = _dcaSelected.filter(k => k !== key);
+        }
+        saveDcaSelection();
+        try { renderDCAChart(); } catch (e) { console.warn('DCA re-render failed:', e); }
+      });
+    });
   }
 
   // --- DCA chart ---
@@ -670,16 +748,21 @@
     const plotW = w - margin.left - margin.right;
     const plotH = h - margin.top - margin.bottom;
 
-    const matches = getTopMatches(5);
+    // Source from user's checkbox selection in the matches table above.
+    const picks = (_dcaSelected || []).map(key => {
+      const a = _data.assets[key]; const m = _metrics[key];
+      if (!a || !m) return null;
+      return { key, name: a.name, ticker: a.ticker, color: a.color, ...m };
+    }).filter(Boolean);
 
-    if (matches.length === 0) {
+    if (picks.length === 0) {
       ctx.fillStyle = '#94a3b8'; ctx.font = '14px -apple-system, sans-serif'; ctx.textAlign = 'center';
-      ctx.fillText('Adjust your target return to see DCA results.', w / 2, h / 2);
+      ctx.fillText('Check at least one asset in the table above to see DCA results.', w / 2, h / 2);
       return;
     }
 
     const months = _plan.timeline * 12;
-    const series = matches.map(m => {
+    const series = picks.map(m => {
       const dca = calcDCA(_data.assets[m.key].monthlyPrices, _plan.monthlyBudget, months);
       return dca ? { ...m, dca } : null;
     }).filter(Boolean);
@@ -780,6 +863,7 @@
   function init() {
     ingestUrlParams();
     if (!hasValidPlan()) { showNoPlanBlock(); return; }
+    loadDcaSelection();
     if (!window.ASSET_DATA) {
       fetch('asset-data.json').then(r => r.json()).then(d => { _data = d; afterDataLoaded(); }).catch(e => console.error('data load failed:', e));
       return;
